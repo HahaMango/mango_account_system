@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.779
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MangoAccountSystem", "MangoAccountSystem\MangoAccountSystem.csproj", "{8995DDB4-1BB7-4CD5-AA29-ABECC8C9D35E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8995DDB4-1BB7-4CD5-AA29-ABECC8C9D35E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8995DDB4-1BB7-4CD5-AA29-ABECC8C9D35E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8995DDB4-1BB7-4CD5-AA29-ABECC8C9D35E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8995DDB4-1BB7-4CD5-AA29-ABECC8C9D35E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {948853F5-5168-44A2-85F2-40A820D39B46}
+	EndGlobalSection
+EndGlobal
