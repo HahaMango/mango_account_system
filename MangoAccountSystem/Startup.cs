@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MangoAccountSystem.Dao;
 using MangoAccountSystem.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace MangoAccountSystem
 {
@@ -29,7 +30,7 @@ namespace MangoAccountSystem
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            /*
+            
             //配置用户数据库
             services.AddDbContext<UserDbContext>(op => 
             {
@@ -40,10 +41,12 @@ namespace MangoAccountSystem
             services.AddIdentity<MangoUser, MangoUserRole>()
                 .AddEntityFrameworkStores<UserDbContext>();
 
-            */
+            services.AddTransient<IUserStore<MangoUser>, MangoUserStore>();
+            services.AddTransient<IRoleStore<MangoUserRole>, MangoUserRoleStore>();
+
             //配置identityserver4
             services.AddIdentityServer()
-                //.AddAspNetIdentity<MangoUser>()
+                .AddAspNetIdentity<MangoUser>()
                 .AddDeveloperSigningCredential()
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())

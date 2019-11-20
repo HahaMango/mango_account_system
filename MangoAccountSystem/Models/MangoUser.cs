@@ -1,14 +1,17 @@
 ﻿using System;
-using System.Security.Principal;
+using System.Collections.Generic;
 
 namespace MangoAccountSystem.Models
 {
-    public class MangoUser : IIdentity
+    public class MangoUser
     {
-        public string AuthenticationType { get; set; }
-
-        public bool IsAuthenticated { get; set; }
-
-        public string Name { get; set; }
+        public int Id { get; set; }
+        public string LoginName { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
+        public string Email { get; set; }
+        public DateTime CreateDate { get; set; }
+        public DateTime LastLoginDate { get; set; }
+        public IList<MangoUserClaim> Claims { get; set; }
     }
 }
