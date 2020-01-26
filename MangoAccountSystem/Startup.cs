@@ -71,7 +71,7 @@ namespace MangoAccountSystem
                     //config.AccessDeniedPath = "/account/denied";
                     config.LoginPath = "/account/login";
                 });
-                */
+            */
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -88,7 +88,7 @@ namespace MangoAccountSystem
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();           
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseIdentityServer();

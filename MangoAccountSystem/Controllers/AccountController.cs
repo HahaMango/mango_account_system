@@ -23,16 +23,7 @@ namespace MangoAccountSystem.Controllers
 
         public async Task<IActionResult> Login(string returnUrl = null)
         {
-            string username = "haha";
-            string password = "123";
-            var claims = new List<Claim>
-            {
-                new Claim("username",username),
-                new Claim("role","member"),
-                new Claim("sub","1")
-            };
-
-            await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "username", "role")));
+            var s = await _signInManager.PasswordSignInAsync("chiva_chen", "228887", false, false);
 
             return Redirect(returnUrl);
         }

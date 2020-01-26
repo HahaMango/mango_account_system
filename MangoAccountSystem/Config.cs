@@ -13,7 +13,8 @@ namespace MangoAccountSystem
         {
             return new List<ApiResource>
             {
-                new ApiResource("api1", "flash_chat")
+                new ApiResource("api1", "flash_chat"),
+                new ApiResource("mangoblogApi","mango_blog")
             };
         }
 
@@ -23,23 +24,23 @@ namespace MangoAccountSystem
             {
                 new Client
                 {
-                    ClientId = "flashchat",
-                    ClientName = "flash_chat",
+                    ClientId = "blogjs",
+                    ClientName = "mango_blog",
                     AllowedGrantTypes = GrantTypes.Implicit,
                     RequirePkce = true,
                     RequireClientSecret = false,
                     RequireConsent = false,
                     AllowAccessTokensViaBrowser = true,
 
-                    RedirectUris = {"http://localhost:8080/popup.html"},
-                    PostLogoutRedirectUris = {"http://localhost:8080/index.html"},
+                    RedirectUris = {"http://localhost:8080/callback.html"},
+                    PostLogoutRedirectUris = {"http://localhost:8080"},
                     AllowedCorsOrigins = {"http://localhost:8080"},
 
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "api1"
+                        "mangoblogApi"
                     }
                 }
             };
