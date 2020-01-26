@@ -1,8 +1,6 @@
 ﻿using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Identity;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,12 +19,7 @@ namespace MangoAccountSystem.Dao
 
         public abstract Task<MangoUser> FindByIdAsync(int userId, CancellationToken cancellationToken);
 
-        public async Task<string> GetUserIdAsync(MangoUser user, CancellationToken cancellationToken)
-        {
-            return Id2String(await GetTheUserIdAsync(user, cancellationToken));
-        }
-
-        public abstract Task<int> GetTheUserIdAsync(MangoUser user, CancellationToken cancellationToken);
+        public abstract Task<string> GetUserIdAsync(MangoUser user, CancellationToken cancellationToken);
 
         public Task<string> GetNormalizedUserNameAsync(MangoUser user, CancellationToken cancellationToken)
         {

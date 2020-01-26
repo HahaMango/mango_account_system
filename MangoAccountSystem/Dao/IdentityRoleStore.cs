@@ -15,62 +15,34 @@ namespace MangoAccountSystem.Dao
 
         public Task<MangoUserRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return FindByIdAsync(String2Id(roleId),cancellationToken);
         }
 
-        public Task<string> GetRoleIdAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<MangoUserRole> FindByIdAsync(int roleId, CancellationToken cancellationToken);
+
+        public abstract Task<string> GetRoleIdAsync(MangoUserRole role, CancellationToken cancellationToken);
 
         #endregion
 
         #region 抽象方法
 
-        public Task<IdentityResult> CreateAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<IdentityResult> CreateAsync(MangoUserRole role, CancellationToken cancellationToken);
 
-        public Task<IdentityResult> DeleteAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<IdentityResult> DeleteAsync(MangoUserRole role, CancellationToken cancellationToken);
 
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void Dispose();
 
-        public Task<MangoUserRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<MangoUserRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken);
 
-        public Task<string> GetNormalizedRoleNameAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<string> GetNormalizedRoleNameAsync(MangoUserRole role, CancellationToken cancellationToken);
 
-        public Task<string> GetRoleNameAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<string> GetRoleNameAsync(MangoUserRole role, CancellationToken cancellationToken);
 
-        public Task SetNormalizedRoleNameAsync(MangoUserRole role, string normalizedName, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task SetNormalizedRoleNameAsync(MangoUserRole role, string normalizedName, CancellationToken cancellationToken);
 
-        public Task SetRoleNameAsync(MangoUserRole role, string roleName, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task SetRoleNameAsync(MangoUserRole role, string roleName, CancellationToken cancellationToken);
 
-        public Task<IdentityResult> UpdateAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<IdentityResult> UpdateAsync(MangoUserRole role, CancellationToken cancellationToken);
 
         #endregion
 

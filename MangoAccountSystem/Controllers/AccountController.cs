@@ -1,15 +1,26 @@
-﻿using System;
+﻿using MangoAccountSystem.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
 
 namespace MangoAccountSystem.Controllers
 {
     public class AccountController : Controller
     {
+        private SignInManager<MangoUser> _signInManager;
+        private UserManager<MangoUser> _userManager;
+        private RoleManager<MangoUserRole> _roleManager;
+
+        public AccountController(SignInManager<MangoUser> signInManager,UserManager<MangoUser> userManager,RoleManager<MangoUserRole> roleManager)
+        {
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
         public async Task<IActionResult> Login(string returnUrl = null)
         {
             string username = "haha";
@@ -24,6 +35,15 @@ namespace MangoAccountSystem.Controllers
             await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "username", "role")));
 
             return Redirect(returnUrl);
+        }
+
+        public async Task Test()
+        {
+            var mangoUser = await _userManager.FindByNameAsync("chiva_chen");
+
+            var claims = await _signInManager.CreateUserPrincipalAsync(mangoUser);
+
+            int i = 1;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace MangoAccountSystem.Dao
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserEntity>()
-                .HasIndex(ue => ue.LoginName)
+                .HasIndex(ue => ue.UserName)
                 .IsUnique();
 
             modelBuilder.Entity<UserRoleEntity>()
@@ -22,7 +22,7 @@ namespace MangoAccountSystem.Dao
                 .IsUnique();
 
             modelBuilder.Entity<User2Role>()
-                .HasIndex(u2r => u2r.UserId);
+                .HasKey(u2r => new { u2r.UserId, u2r.RoleId });
         }
 
         public DbSet<UserEntity> MangoUsers { get; set; }
@@ -54,7 +54,7 @@ namespace MangoAccountSystem.Dao
     {
         [Key]
         public int Id { get; set; }
-        public int LoginName { get; set; }
+        public int UserId { get; set; }
         public string ClaimType { get; set; }
         public string ClaimValue { get; set; }
     }

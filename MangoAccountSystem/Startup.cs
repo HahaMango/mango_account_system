@@ -39,7 +39,17 @@ namespace MangoAccountSystem
 
             //配置identity
             services.AddIdentity<MangoUser, MangoUserRole>()
-                .AddEntityFrameworkStores<UserDbContext>();
+                .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+            });
 
             services.AddTransient<IUserStore<MangoUser>, MangoUserStore>();
             services.AddTransient<IRoleStore<MangoUserRole>, MangoUserRoleStore>();
@@ -81,7 +91,6 @@ namespace MangoAccountSystem
             app.UseHttpsRedirection();           
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseAuthentication();
             app.UseIdentityServer();
 
             app.UseMvc(routes =>

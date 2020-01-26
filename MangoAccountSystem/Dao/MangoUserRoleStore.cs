@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using MangoAccountSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using MangoAccountSystem.Helper;
 
 namespace MangoAccountSystem.Dao
 {
-    public class MangoUserRoleStore : IRoleStore<MangoUserRole>
+    public class MangoUserRoleStore : IdentityRoleStore
     {
 
         private readonly UserDbContext _userDbContext = null;
@@ -19,169 +20,140 @@ namespace MangoAccountSystem.Dao
             _userDbContext = userDbContext;
         }
 
-        public async Task<IdentityResult> CreateAsync(MangoUserRole role, CancellationToken cancellationToken)
+        public override async Task<IdentityResult> CreateAsync(MangoUserRole role, CancellationToken cancellationToken)
         {
-            int result = 0;
+            if(role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
 
             try
             {
-                _userDbContext.MangoUserRoles.Add(new UserRoleEntity
-                {
-                    Id = role.Id,
-                    RoleName = role.RoleName
-                });
-
-                result = await _userDbContext.SaveChangesAsync();
-            }catch(Exception e)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = $"添加角色失败，错误内容{e.Message}" });
-            }
-            return (result > 0) ? IdentityResult.Success : IdentityResult.Failed(new IdentityError { Description = "添加角色失败"});
-        }
-
-        public async Task<IdentityResult> DeleteAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            int result = 0;
-
-            try
-            {
-                _userDbContext.MangoUserRoles.Remove(new UserRoleEntity
-                {
-                    Id = role.Id,
-                    RoleName = role.RoleName
-                });
-
-                result = await _userDbContext.SaveChangesAsync();
-            }catch(Exception e)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = $"删除角色失败，错误内容{e.Message}" });
-            }
-
-            return (result > 0) ? IdentityResult.Success : IdentityResult.Failed(new IdentityError { Description = "删除角色失败" });
-        }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<MangoUserRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var role = await _userDbContext.MangoUserRoles.Where(r => r.Id == int.Parse(roleId)).SingleOrDefaultAsync();
-                if (role == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return new MangoUserRole
-                    {
-                        Id = role.Id,
-                        RoleName = role.RoleName
-                    };
-                }
-            }catch(Exception e)
-            {
-                throw new ApplicationException();
-            }
-        }
-
-        public async Task<MangoUserRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var role = await _userDbContext.MangoUserRoles.Where(r => r.RoleName == normalizedRoleName).SingleOrDefaultAsync();
-                if (role == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return new MangoUserRole
-                    {
-                        Id = role.Id,
-                        RoleName = role.RoleName
-                    };
-                }
-            }catch(Exception e)
-            {
-                throw new ApplicationException();
-            }
-        }
-
-        public async Task<string> GetNormalizedRoleNameAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            if(role.RoleName != null)
-            {
-                return role.RoleName;
-            }
-            try
-            {
-                var resultRole = await _userDbContext.MangoUserRoles.Where(r => r.Id == (role.Id)).SingleOrDefaultAsync();
-                return resultRole.RoleName;
-            }
-            catch(Exception e)
-            {
-                throw new ApplicationException();
-            }
-        }
-
-        public async Task<string> GetRoleIdAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            if (role.Id != 0)
-            {
-                return role.Id.ToString();
-            }
-            try
-            {
-                var resultRole = await _userDbContext.MangoUserRoles.Where(r => r.RoleName == (role.RoleName)).SingleOrDefaultAsync();
-                return resultRole.Id.ToString();
-            }
-            catch (Exception e)
-            {
-                throw new ApplicationException();
-            }
-        }
-
-        public async Task<string> GetRoleNameAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
-            return await GetNormalizedRoleNameAsync(role, cancellationToken);
-        }
-
-        public async Task SetNormalizedRoleNameAsync(MangoUserRole role, string normalizedName, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var resultRole = await _userDbContext.MangoUserRoles.Where(r => r.Id == role.Id).SingleOrDefaultAsync();
-                resultRole.RoleName = normalizedName;
+                UserRoleEntity userRoleEntity = MEConversion.UserRoleM2E(role);
+                await _userDbContext.MangoUserRoles.AddAsync(userRoleEntity);
                 await _userDbContext.SaveChangesAsync();
-            }catch(Exception e)
+            }catch(System.Exception e)
             {
-                throw new ApplicationException();
+                return IdentityResult.Failed(new IdentityError { Description = e.Message});
             }
+            return IdentityResult.Success;
         }
 
-        public async Task SetRoleNameAsync(MangoUserRole role, string roleName, CancellationToken cancellationToken)
+        public override async Task<IdentityResult> DeleteAsync(MangoUserRole role, CancellationToken cancellationToken)
         {
-            await SetNormalizedRoleNameAsync(role, roleName, cancellationToken);
-        }
-
-        public async Task<IdentityResult> UpdateAsync(MangoUserRole role, CancellationToken cancellationToken)
-        {
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
             try
             {
-                var resultRole = await _userDbContext.MangoUserRoles.Where(r => r.Id == role.Id).SingleOrDefaultAsync();
-                resultRole.RoleName = role.RoleName;
+                var userrole = await _userDbContext.MangoUserRoles.Where(r => r.RoleName == role.RoleName).SingleOrDefaultAsync();
+                _userDbContext.MangoUserRoles.Remove(userrole);
                 await _userDbContext.SaveChangesAsync();
-
-                return IdentityResult.Success;
             }
-            catch(Exception e)
+            catch(System.Exception e)
             {
-                return IdentityResult.Failed(new IdentityError { Description = $"更新失败，错误内容{e.Message}"});
+                return IdentityResult.Failed(new IdentityError { Description = e.Message });
             }
-        }       
+            return IdentityResult.Success;
+        }
+
+        public override void Dispose()
+        {
+        }
+
+        public override async Task<MangoUserRole> FindByIdAsync(int roleId, CancellationToken cancellationToken)
+        {
+            var userrole = await _userDbContext.MangoUserRoles.Where(r => r.Id == roleId).SingleOrDefaultAsync();
+            if(userrole == null)
+            {
+                return null;
+            }
+            return MEConversion.UserRoleE2M(userrole);
+        }
+
+        public override async Task<MangoUserRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        {
+            var userrole = await _userDbContext.MangoUserRoles.Where(r => r.RoleName == normalizedRoleName).SingleOrDefaultAsync();
+            if (userrole == null)
+            {
+                return null;
+            }
+            return MEConversion.UserRoleE2M(userrole);
+        }
+
+        public override async Task<string> GetNormalizedRoleNameAsync(MangoUserRole role, CancellationToken cancellationToken)
+        {
+            if(role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            return await Task.FromResult(role.RoleName);
+        }
+
+        public override async Task<string> GetRoleNameAsync(MangoUserRole role, CancellationToken cancellationToken)
+        {
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            return await Task.FromResult(role.RoleName);
+        }
+
+        public override async Task<string> GetRoleIdAsync(MangoUserRole role, CancellationToken cancellationToken)
+        {
+            var userrole = await FindByNameAsync(role.RoleName,cancellationToken);
+            if(userrole == null)
+            {
+                return null;
+            }
+            return userrole.Id.ToString();
+        }
+
+        public override async Task SetNormalizedRoleNameAsync(MangoUserRole role, string normalizedName, CancellationToken cancellationToken)
+        {
+            if(role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            await Task.Run(() =>
+            {
+                role.RoleName = normalizedName;
+            });
+        }
+
+        public override async Task SetRoleNameAsync(MangoUserRole role, string roleName, CancellationToken cancellationToken)
+        {
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+            await Task.Run(() =>
+            {
+                role.RoleName = roleName;
+            });
+        }
+
+        public override async Task<IdentityResult> UpdateAsync(MangoUserRole role, CancellationToken cancellationToken)
+        {
+            if(role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            try
+            {
+                var userrole = await _userDbContext.MangoUserRoles.Where(r => r.RoleName == role.RoleName).SingleOrDefaultAsync();
+                _userDbContext.MangoUserRoles.Remove(userrole);
+                await _userDbContext.SaveChangesAsync();
+            }
+            catch (System.Exception e)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = e.Message });
+            }
+            return IdentityResult.Success;
+        }     
     }
 }
