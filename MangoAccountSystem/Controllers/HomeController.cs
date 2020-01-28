@@ -4,14 +4,9 @@ using System.Diagnostics;
 
 namespace MangoAccountSystem.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : UserHelperController
     {
         public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
         {
             return View();
         }

@@ -1,0 +1,47 @@
+﻿@model MangoAccountSystem.Models.SignUpViewModels
+@{
+    ViewData["Title"] = "Mango SignUp";
+}
+<div style="max-width:690px;margin:60px auto 0px auto;">
+    <form>
+        <div class="form-group">
+            <label for="exampleInputEmail1">UserName</label>
+            <input type="text" class="form-control" name="userName" value="@Model.UserName">
+            @{
+                if (Model.IsUserNameError)
+                {
+                    <small class="form-text" style="color:red;">@Model.UserNameErrors</small>
+                }
+            }
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" class="form-control" name="email" aria-describedby="emailHelp" value="@Model.Email">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" class="form-control" name="password">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Password Confirm</label>
+            <input type="password" class="form-control" name="passwordConfirm">
+            @{
+                if (Model.IsPasswordError)
+                {
+                    <small class="form-text" style="color:red;">@Model.PasswordErrors</small>
+                }
+            }
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" name="isAgree">
+            <label class="form-check-label" for="exampleCheck1">同意隐私协议</label>
+            @{
+                if (Model.IsAgreeError)
+                {
+                    <small class="form-text" style="color:red;">请勾选同意协议</small>
+                }
+            }
+        </div>
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+    </form>
+</div>
