@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MangoAccountSystem.Dao;
 using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace MangoAccountSystem
 {
@@ -26,11 +27,15 @@ namespace MangoAccountSystem
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = context => false;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                //options.KnownProxies.Add(IPAddress.Parse("192.168.99.100"));
+            });
+
             //配置用户数据库
             services.AddDbContext<UserDbContext>(op => 
             {
@@ -62,16 +67,19 @@ namespace MangoAccountSystem
                 .AddInMemoryClients(Config.GetClients())
                 .AddInMemoryIdentityResources(Config.GetIdentityResources());
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            /*
-            services.AddAuthentication("my")
-                .AddCookie("my",config => 
+            //配置跨域
+            services.AddCors(config =>
+            {
+                config.AddPolicy("all", p =>
                 {
-                    //config.AccessDeniedPath = "/account/denied";
-                    config.LoginPath = "/account/login";
+                    p.SetIsOriginAllowed(op => true)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
                 });
-            */
+            });
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,7 +95,12 @@ namespace MangoAccountSystem
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
+            app.UseCors("all");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
@@ -97,7 +110,7 @@ namespace MangoAccountSystem
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller}/{action}/{id?}");
             });
         }
     }

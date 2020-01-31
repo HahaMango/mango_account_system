@@ -24,7 +24,7 @@ namespace MangoAccountSystem.Controllers
         {
             if(returnUrl == null)
             {
-                returnUrl = "/";
+                returnUrl = "/center/home";
             }
             LoginViewModels loginViewModels = new LoginViewModels
             {
@@ -63,7 +63,56 @@ namespace MangoAccountSystem.Controllers
         [HttpGet]
         public IActionResult SignUp()
         {
-            return View(new SignUpViewModels());
+            return View(new SignUpViewModel());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SignUp(SignUpInputModel signUpInputModel)
+        {
+            SignUpViewModel signUpViewModel = new SignUpViewModel();
+            if (signUpInputModel.UserName == null || signUpInputModel.UserName == "")
+            {
+                signUpViewModel.UserNameErrors = "用户名不能为空";
+            }
+            if(signUpInputModel.Password == null || signUpInputModel.Password == "" || signUpInputModel.PasswordConfirm == null || signUpInputModel.PasswordConfirm == "")
+            {
+                signUpViewModel.PasswordErrors = "密码不能为空";
+            }
+            if(signUpInputModel.Password != signUpInputModel.PasswordConfirm)
+            {
+                signUpViewModel.PasswordErrors = "两次输入的密码不正确";
+            }
+            if (!signUpInputModel.IsAgree)
+            {
+                signUpViewModel.AgreeErrors = "请勾选同意协议";
+            }
+            if (signUpViewModel.IsAgreeError || signUpViewModel.IsPasswordError || signUpViewModel.IsUserNameError)
+            {
+                signUpViewModel.UserName = signUpInputModel.UserName;
+                signUpViewModel.Email = signUpInputModel.Email;
+                return View(signUpViewModel);
+            }
+
+            if (await _userManager.FindByNameAsync(signUpInputModel.UserName) != null)
+            {
+                signUpViewModel.UserNameErrors = "该用户名已存在";
+                return View(signUpViewModel);
+            }
+            MangoUser mangoUser = new MangoUser
+            {
+                UserName = signUpInputModel.UserName,
+                Email = signUpInputModel.Email
+            };
+            var flag = await _userManager.CreateAsync(mangoUser,signUpInputModel.Password);
+            if (!flag.Succeeded)
+            {
+                ViewData["SignUpResult"] = "Registration error occurred!";
+            }
+            else
+            {
+                ViewData["SignUpResult"] = "Registration Successful!";
+            }
+            return View("ResultPage");
         }
 
         [HttpPost]
@@ -84,11 +133,6 @@ namespace MangoAccountSystem.Controllers
             await _signInManager.SignOutAsync();
 
             return Redirect(requestUrl);
-        }
-
-        public IActionResult Test()
-        {
-            return null;
         }
 
         private async Task LoginUserNameValidation(LoginViewModels loginView,string username)

@@ -1,0 +1,21 @@
+﻿@model MangoAccountSystem.Models.MangoUser
+@{ 
+    ViewData["Title"] = Model.UserName + " Info";
+}
+
+<div style="max-width:690px;margin:60px auto 0px auto;">
+    <h2>User Info</h2>
+    <form>
+        <div class="form-group">
+            <label for="exampleInputEmail1">UserName</label>
+            <input type="text" class="form-control" name="userName" value="@Model.UserName" readonly>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" class="form-control" name="email" aria-describedby="emailHelp" value="@Model.Email" readonly>
+        </div>
+        <!--
+        <button type="submit" class="btn btn-primary">Update</button>
+            -->
+    </form>
+</div>

@@ -26,7 +26,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Mango User Center</a>
+                <a class="navbar-brand" href="/center/home">Mango User Center</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -37,7 +37,7 @@
                         if (isAuthenticated)
                         {
                             <form class="form-inline my-2 my-lg-0" action="/account/logout" method="post">
-                                <label class="mr-sm-2">@userName</label>
+                                <a class="mr-sm-2" href="/center/user"><label>@userName</label></a>
                                 <input type="hidden" value="@userName" name="username" />
                                 <input type="hidden" name="returnurl" id="logoutReturnUrl"/>
                                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="document.getElementById('logoutReturnUrl').value = window.location.href">Logout</button>

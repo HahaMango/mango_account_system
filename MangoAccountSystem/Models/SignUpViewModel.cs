@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Models
 {
-    public class SignUpViewModels
+    public class SignUpViewModel
     {
         public string UserName { get; set; }
         public string Email { get; set; }
