@@ -9,6 +9,7 @@ using MangoAccountSystem.Dao;
 using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.HttpOverrides;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MangoAccountSystem
 {
@@ -62,7 +63,7 @@ namespace MangoAccountSystem
             //配置identityserver4
             services.AddIdentityServer()
                 .AddAspNetIdentity<MangoUser>()
-                .AddDeveloperSigningCredential()
+                .AddSigningCredential(new X509Certificate2(Configuration["IdentityServerPfx:Path"], Configuration["IdentityServerPfx:Password"]))
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
                 .AddInMemoryIdentityResources(Config.GetIdentityResources());
