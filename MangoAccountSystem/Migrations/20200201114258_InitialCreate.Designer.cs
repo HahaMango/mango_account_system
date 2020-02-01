@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MangoAccountSystem.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20200125081047_InitialCreate")]
+    [Migration("20200201114258_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,9 +35,11 @@ namespace MangoAccountSystem.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("ClaimType");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("varchar(15)");
 
-                    b.Property<string>("ClaimValue");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("varchar(20)");
 
                     b.Property<int>("UserId");
 
@@ -51,17 +53,22 @@ namespace MangoAccountSystem.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("CreateDate");
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Email");
+                    b.Property<string>("Email")
+                        .HasColumnType("varchar(40)");
 
                     b.Property<DateTime>("LastLoginDate");
 
-                    b.Property<string>("LoginName");
+                    b.Property<string>("LoginName")
+                        .HasColumnType("varchar(20)");
 
-                    b.Property<string>("Password");
+                    b.Property<string>("Password")
+                        .HasColumnType("varchar(40)");
 
-                    b.Property<string>("UserName");
+                    b.Property<string>("UserName")
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
 
@@ -76,7 +83,8 @@ namespace MangoAccountSystem.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("RoleName");
+                    b.Property<string>("RoleName")
+                        .HasColumnType("varchar(15)");
 
                     b.HasKey("Id");
 

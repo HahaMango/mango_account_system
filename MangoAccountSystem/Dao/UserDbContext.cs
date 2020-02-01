@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MangoAccountSystem.Dao
 {
@@ -35,10 +36,15 @@ namespace MangoAccountSystem.Dao
     {
         [Key]
         public int Id { get; set; }
+        [Column(TypeName = "varchar(20)")]
         public string LoginName { get; set; }
+        [Column(TypeName = "varchar(20)")]
         public string UserName { get; set; }
+        [Column(TypeName = "varchar(40)")]
         public string Password { get; set; }
+        [Column(TypeName = "varchar(40)")]
         public string Email { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreateDate { get; set; }
         public DateTime LastLoginDate { get; set; }
     }
@@ -47,6 +53,7 @@ namespace MangoAccountSystem.Dao
     {
         [Key]
         public int Id { get; set; }
+        [Column(TypeName = "varchar(15)")]
         public string RoleName { get; set; }
     }
 
@@ -55,7 +62,9 @@ namespace MangoAccountSystem.Dao
         [Key]
         public int Id { get; set; }
         public int UserId { get; set; }
+        [Column(TypeName = "varchar(15)")]
         public string ClaimType { get; set; }
+        [Column(TypeName = "varchar(20)")]
         public string ClaimValue { get; set; }
     }
 

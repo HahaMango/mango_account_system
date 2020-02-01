@@ -15,8 +15,8 @@ namespace MangoAccountSystem.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<int>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
+                    ClaimType = table.Column<string>(type: "varchar(15)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "varchar(20)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -29,7 +29,7 @@ namespace MangoAccountSystem.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    RoleName = table.Column<string>(nullable: true)
+                    RoleName = table.Column<string>(type: "varchar(15)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -42,11 +42,12 @@ namespace MangoAccountSystem.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    LoginName = table.Column<string>(nullable: true),
-                    UserName = table.Column<string>(nullable: true),
-                    Password = table.Column<string>(nullable: true),
-                    Email = table.Column<string>(nullable: true),
-                    CreateDate = table.Column<DateTime>(nullable: false),
+                    LoginName = table.Column<string>(type: "varchar(20)", nullable: true),
+                    UserName = table.Column<string>(type: "varchar(20)", nullable: true),
+                    Password = table.Column<string>(type: "varchar(40)", nullable: true),
+                    Email = table.Column<string>(type: "varchar(40)", nullable: true),
+                    CreateDate = table.Column<DateTime>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     LastLoginDate = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>

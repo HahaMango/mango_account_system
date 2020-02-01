@@ -30,6 +30,14 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "UserCenterNginxPro": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "https://192.168.99.1:6001;http://192.168.99.1:6000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
     }
   }
 }

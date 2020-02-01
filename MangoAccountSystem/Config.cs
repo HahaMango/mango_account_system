@@ -1,20 +1,30 @@
 ﻿using IdentityServer4;
 using IdentityServer4.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MangoAccountSystem
 {
     public class Config
     {
+        private const string RoleType = "role";
+        private const string NameType = "name";
+
         public static IEnumerable<ApiResource> GetApiResources()
         {
             return new List<ApiResource>
             {
                 new ApiResource("api1", "flash_chat"),
-                new ApiResource("mangoblogApi","mango_blog")
+                new ApiResource
+                {
+                    Name = "mangoblogApi",
+
+                    UserClaims = {RoleType,NameType},
+
+                    Scopes =
+                    {
+                        new Scope("mangoblogApi")
+                    }
+                }
             };
         }
 
@@ -30,7 +40,7 @@ namespace MangoAccountSystem
                     RequirePkce = true,
                     RequireClientSecret = false,
                     RequireConsent = false,
-                    AllowAccessTokensViaBrowser = true,
+                    AllowAccessTokensViaBrowser = true,              
 
                     RedirectUris = {"http://localhost:8080/callback.html"},
                     PostLogoutRedirectUris = {"http://localhost:8080"},
@@ -40,7 +50,8 @@ namespace MangoAccountSystem
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "mangoblogApi"
+                        "mangoblogApi",
+                        "mango.profile"
                     }
                 }
             };
@@ -48,10 +59,16 @@ namespace MangoAccountSystem
 
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {
+            var customProfile = new IdentityResource(
+                name: "mango.profile",
+                displayName: "mango profile",
+                claimTypes: new[] { NameType, RoleType });
+
             return new List<IdentityResource>
             {
                 new IdentityResources.OpenId(),
-                new IdentityResources.Profile()
+                new IdentityResources.Profile(),
+                customProfile
             };
         }
     }

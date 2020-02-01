@@ -203,8 +203,16 @@ namespace MangoAccountSystem.Dao
             UserEntity userEntity = await FindByNameEntityAsync(user.LoginName, cancellationToken);
 
             IList<string> roles = new List<string>();
-            var roleentities = await _userDbContext.MangoUserRoles.Join(_userDbContext.User2Roles, r => r.Id, u2r => u2r.RoleId, (r, u2r) => r.RoleName).ToListAsync();
-            return roleentities;
+            var roleentities = await _userDbContext.User2Roles.Where(u2r => u2r.UserId == userEntity.Id).Select(u2r => u2r.RoleId).ToListAsync();
+            foreach(int i in roleentities)
+            {
+                var role = await _userDbContext.MangoUserRoles.Where(r => r.Id == i).SingleOrDefaultAsync();
+                if(role != null)
+                {
+                    roles.Add(role.RoleName);
+                }
+            }
+            return roles;
         }
 
         public override async Task<string> GetUserIdAsync(MangoUser user, CancellationToken cancellationToken)

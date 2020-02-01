@@ -56,6 +56,9 @@ namespace MangoAccountSystem.Controllers
                 loginView.UserName = username;
                 return View(loginView);
             }
+            var mangouser = await _userManager.FindByNameAsync(username);
+            mangouser.LastLoginDate = new DateTime();
+            await _userManager.UpdateAsync(mangouser);
 
             return Redirect(loginInputModels.ReturnUrl);
         }
