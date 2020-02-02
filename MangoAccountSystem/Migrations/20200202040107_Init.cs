@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MangoAccountSystem.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -44,7 +44,7 @@ namespace MangoAccountSystem.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     LoginName = table.Column<string>(type: "varchar(20)", nullable: true),
                     UserName = table.Column<string>(type: "varchar(20)", nullable: true),
-                    Password = table.Column<string>(type: "varchar(40)", nullable: true),
+                    Password = table.Column<string>(nullable: true),
                     Email = table.Column<string>(type: "varchar(40)", nullable: true),
                     CreateDate = table.Column<DateTime>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),

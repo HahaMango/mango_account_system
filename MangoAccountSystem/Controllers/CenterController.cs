@@ -29,7 +29,7 @@ namespace MangoAccountSystem.Controllers
             bool isauth = base.User.Identity.IsAuthenticated;
             if (!isauth)
             {
-                return Redirect("/center/home");
+                return Redirect("/");
             }
             MangoUser mangoUser = await _userManager.FindByNameAsync(username);
 

@@ -1,5 +1,6 @@
 ﻿using IdentityServer4;
 using IdentityServer4.Models;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
 namespace MangoAccountSystem
@@ -28,7 +29,7 @@ namespace MangoAccountSystem
             };
         }
 
-        public static IEnumerable<Client> GetClients()
+        public static IEnumerable<Client> GetClients(IConfiguration configuration)
         {
             return new List<Client>
             {
@@ -42,9 +43,12 @@ namespace MangoAccountSystem
                     RequireConsent = false,
                     AllowAccessTokensViaBrowser = true,              
 
-                    RedirectUris = {"http://localhost:8080/callback.html"},
-                    PostLogoutRedirectUris = {"http://localhost:8080"},
-                    AllowedCorsOrigins = {"http://localhost:8080"},
+                    //RedirectUris = {"http://localhost:8080/callback.html"},
+                    //PostLogoutRedirectUris = {"http://localhost:8080"},
+                    //AllowedCorsOrigins = {"http://localhost:8080"},
+                    RedirectUris = {configuration["IdentityServerClientUrl:RedirectUris"] },
+                    PostLogoutRedirectUris = {configuration["IdentityServerClientUrl:OriginsUrl"] },
+                    AllowedCorsOrigins = {configuration["IdentityServerClientUrl:OriginsUrl"]},
 
                     AllowedScopes =
                     {
