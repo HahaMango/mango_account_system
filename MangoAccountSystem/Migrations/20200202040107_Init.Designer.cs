@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MangoAccountSystem.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20200201114258_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200202040107_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -64,8 +64,7 @@ namespace MangoAccountSystem.Migrations
                     b.Property<string>("LoginName")
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("Password")
-                        .HasColumnType("varchar(40)");
+                    b.Property<string>("Password");
 
                     b.Property<string>("UserName")
                         .HasColumnType("varchar(20)");

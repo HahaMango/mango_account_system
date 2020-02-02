@@ -24,7 +24,7 @@ namespace MangoAccountSystem.Controllers
         {
             if(returnUrl == null)
             {
-                returnUrl = "/center/home";
+                returnUrl = "/";
             }
             LoginViewModels loginViewModels = new LoginViewModels
             {
@@ -57,7 +57,7 @@ namespace MangoAccountSystem.Controllers
                 return View(loginView);
             }
             var mangouser = await _userManager.FindByNameAsync(username);
-            mangouser.LastLoginDate = new DateTime();
+            mangouser.LastLoginDate = DateTime.Now;
             await _userManager.UpdateAsync(mangouser);
 
             return Redirect(loginInputModels.ReturnUrl);

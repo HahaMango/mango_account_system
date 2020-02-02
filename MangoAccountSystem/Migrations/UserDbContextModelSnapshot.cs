@@ -62,8 +62,7 @@ namespace MangoAccountSystem.Migrations
                     b.Property<string>("LoginName")
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("Password")
-                        .HasColumnType("varchar(40)");
+                    b.Property<string>("Password");
 
                     b.Property<string>("UserName")
                         .HasColumnType("varchar(20)");

@@ -65,7 +65,7 @@ namespace MangoAccountSystem
                 .AddAspNetIdentity<MangoUser>()
                 .AddSigningCredential(new X509Certificate2(Configuration["IdentityServerPfx:Path"], Configuration["IdentityServerPfx:Password"]))
                 .AddInMemoryApiResources(Config.GetApiResources())
-                .AddInMemoryClients(Config.GetClients())
+                .AddInMemoryClients(Config.GetClients(Configuration))
                 .AddInMemoryIdentityResources(Config.GetIdentityResources());
 
             //配置跨域
@@ -111,7 +111,7 @@ namespace MangoAccountSystem
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller}/{action}/{id?}");
+                    template: "{controller=Center}/{action=Home}/{id?}");
             });
         }
     }

@@ -40,7 +40,6 @@ namespace MangoAccountSystem.Dao
         public string LoginName { get; set; }
         [Column(TypeName = "varchar(20)")]
         public string UserName { get; set; }
-        [Column(TypeName = "varchar(40)")]
         public string Password { get; set; }
         [Column(TypeName = "varchar(40)")]
         public string Email { get; set; }
