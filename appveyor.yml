@@ -5,9 +5,15 @@ branches:
   only:
   - master
 image: Visual Studio 2017
-build:
-  project: MangoAccountSystem.sln
-  publish_wap: true
-  publish_aspnet_core: true
-  verbosity: minimal
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  version_prefix: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
+build_script:
+- ps: dotnet build -c Release
 deploy: off
