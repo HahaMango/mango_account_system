@@ -16,6 +16,7 @@ dotnet_csproj:
   informational_version: '{version}'
 nuget:
   account_feed: true
+  project_feed: true
 build_script:
 - ps: dotnet build -c Release
 deploy: off
