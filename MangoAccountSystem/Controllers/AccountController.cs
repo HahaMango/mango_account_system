@@ -1,4 +1,6 @@
-﻿using MangoAccountSystem.Models;
+﻿using IdentityServer4;
+using MangoAccountSystem.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,7 +14,7 @@ namespace MangoAccountSystem.Controllers
         private readonly UserManager<MangoUser> _userManager;
         private readonly RoleManager<MangoUserRole> _roleManager;
 
-        public AccountController(SignInManager<MangoUser> signInManager,UserManager<MangoUser> userManager,RoleManager<MangoUserRole> roleManager)
+        public AccountController(SignInManager<MangoUser> signInManager,UserManager<MangoUser> userManager,RoleManager<MangoUserRole> roleManager, IAuthenticationSchemeProvider authenticationSchemeProvider)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -31,6 +33,17 @@ namespace MangoAccountSystem.Controllers
                 ReturnUrl = returnUrl
             };
             return View(loginViewModels);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LocalLogin()
+        {
+            var exernalProviders = await _signInManager.GetExternalAuthenticationSchemesAsync();
+            foreach(AuthenticationScheme scheme in exernalProviders)
+            {
+
+            }
+            return View();
         }
 
         [HttpPost]
@@ -120,7 +133,7 @@ namespace MangoAccountSystem.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Logout(string userName, string returnUrl)
-        {
+        {          
             if(userName == null)
             {
                 throw new ArgumentNullException();
@@ -136,6 +149,23 @@ namespace MangoAccountSystem.Controllers
             await _signInManager.SignOutAsync();
 
             return Redirect(requestUrl);
+        }
+
+        [HttpGet]
+        public IActionResult Test()
+        {
+            string returnUrl = "/";
+            var redirectUrl = Url.Action(new Microsoft.AspNetCore.Mvc.Routing.UrlActionContext
+            {
+                Controller = "External",
+                Action = "Callback",
+                Values = new
+                {
+                    returnUrl
+                }
+            });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("gitee", redirectUrl);
+            return Challenge(properties, "gitee");
         }
 
         private async Task LoginUserNameValidation(LoginViewModels loginView,string username)

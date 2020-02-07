@@ -10,6 +10,9 @@ using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Security.Cryptography.X509Certificates;
+using IdentityServer4;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace MangoAccountSystem
 {
@@ -57,16 +60,37 @@ namespace MangoAccountSystem
                 options.Password.RequiredUniqueChars = 1;
             });
 
-            services.AddTransient<IUserStore<MangoUser>, MangoUserStore>();
-            services.AddTransient<IRoleStore<MangoUserRole>, MangoUserRoleStore>();
+            services.AddScoped<IUserStore<MangoUser>, MangoUserStore>();
+            services.AddScoped<IRoleStore<MangoUserRole>, MangoUserRoleStore>();
 
             //配置identityserver4
             services.AddIdentityServer()
-                .AddAspNetIdentity<MangoUser>()
+                .AddAspNetIdentity<MangoUser>()                
                 .AddSigningCredential(new X509Certificate2(Configuration["IdentityServerPfx:Path"], Configuration["IdentityServerPfx:Password"]))
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients(Configuration))
                 .AddInMemoryIdentityResources(Config.GetIdentityResources());
+
+
+            services.AddAuthentication()
+                .AddGitHub("github", options =>
+                  {
+                      options.ClientId = "a932e62826483a7e78b1";
+                      options.ClientSecret = "acf498e0eaa8eee1463f50e617c878e2d085ff71";
+
+                      //options.SaveTokens = true;
+                      options.Scope.Add("user");
+
+                      options.ClaimActions.MapJsonKey("mangouser:email", "email");
+                      options.ClaimActions.MapJsonKey("mangouser:name", "login");
+                      options.ClaimActions.MapJsonKey("mangouser:nickname", "name");
+                  })
+                  .AddGitee("gitee",options=>
+                  {
+                      options.ClientId = "f096679d98ade385d488f7336137756c779d1eaa55d4acad15c52de0f056a474";
+                      options.ClientSecret = "b556af646cf9d48510a64331714328557a9494b6f9585a7dae2eb442614488cd";
+                  });
+                
 
             //配置跨域
             services.AddCors(config =>

@@ -59,6 +59,28 @@ namespace MangoAccountSystem.Dao
             }
         }
 
+        public override async Task AddLoginAsync(MangoUser user, UserLoginInfo login, CancellationToken cancellationToken)
+        {
+            if(user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if(login == null)
+            {
+                throw new ArgumentNullException(nameof(login));
+            }
+
+            var mangouser = await FindByNameEntityAsync(user.UserName,cancellationToken);
+            if(mangouser != null)
+            {
+                ExternalLoginEntity externalLogin = MEConversion.ExternalLoginM2E(login);
+                externalLogin.UserId = mangouser.Id;
+
+                await _userDbContext.ExternalLogins.AddAsync(externalLogin);
+                await _userDbContext.SaveChangesAsync();
+            }
+        }
+
         public override async Task AddToRoleAsync(MangoUser user, string roleName, CancellationToken cancellationToken)
         {
             var role = await _userDbContext.MangoUserRoles.Where(r => r.RoleName == roleName).SingleOrDefaultAsync();
@@ -121,12 +143,51 @@ namespace MangoAccountSystem.Dao
         {            
         }
 
+        public override async Task<MangoUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
+        {
+            if(normalizedEmail == null)
+            {
+                throw new ArgumentNullException(nameof(normalizedEmail));
+            }
+
+            UserEntity userEntity = await _userDbContext.MangoUsers.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
+            if(userEntity == null)
+            {
+                return null;
+            }
+            return MEConversion.UserE2M(userEntity);
+        }
+
         public override async Task<MangoUser> FindByIdAsync(int userId, CancellationToken cancellationToken)
         {
             UserEntity userEntity = await _userDbContext.MangoUsers.Where(u => u.Id == userId).SingleOrDefaultAsync();
             if (userEntity == null)
             {
                 return null;
+            }
+            return MEConversion.UserE2M(userEntity);
+        }
+
+        public override async Task<MangoUser> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            if(loginProvider == null)
+            {
+                throw new ArgumentNullException(nameof(loginProvider));
+            }
+            if(providerKey == null)
+            {
+                throw new ArgumentNullException(nameof(providerKey));
+            }
+
+            ExternalLoginEntity exl = await _userDbContext.ExternalLogins.FirstOrDefaultAsync(ex => ex.LoginProvider == loginProvider && ex.ProviderKey == providerKey);
+            if(exl == null)
+            {
+                return null;
+            }
+            UserEntity userEntity = await _userDbContext.MangoUsers.FirstOrDefaultAsync(ex => ex.Id == exl.UserId);
+            if(userEntity == null)
+            {
+                throw new UserNotFoundException($"method:{nameof(FindByLoginAsync)},没有找到id为：{exl.UserId}的用户");
             }
             return MEConversion.UserE2M(userEntity);
         }
@@ -166,6 +227,34 @@ namespace MangoAccountSystem.Dao
             return mangoUserClaims;
         }
 
+        public override async Task<string> GetEmailAsync(MangoUser user, CancellationToken cancellationToken)
+        {
+            if(user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            UserEntity userEntity = await FindByNameEntityAsync(user.UserName, cancellationToken);
+            if(userEntity == null)
+            {
+                return null;
+            }
+            return userEntity.Email;
+        }
+
+        public override async Task<bool> GetEmailConfirmedAsync(MangoUser user, CancellationToken cancellationToken)
+        {
+            if(user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            UserEntity userEntity = await FindByNameEntityAsync(user.UserName, cancellationToken);
+            if(userEntity == null)
+            {
+                return false;
+            }
+            return userEntity.EmailConfirmed;
+        }
+
         public override async Task<string> GetLoginNameAsync(MangoUser user, CancellationToken cancellationToken)
         {
             if(user == null)
@@ -178,6 +267,43 @@ namespace MangoAccountSystem.Dao
             }
             var mangouser = await FindByIdAsync(user.Id, cancellationToken);
             return mangouser.LoginName;
+        }
+
+        public override async Task<IList<UserLoginInfo>> GetLoginsAsync(MangoUser user, CancellationToken cancellationToken)
+        {
+            if(user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            IList<UserLoginInfo> userLoginInfos;
+            UserEntity userEntity = await FindByNameEntityAsync(user.UserName, cancellationToken);
+            if(userEntity == null)
+            {
+                return null;
+            }
+            var logins = await _userDbContext.ExternalLogins.Where(ex => ex.UserId == userEntity.Id).ToListAsync();
+            userLoginInfos = new List<UserLoginInfo>();
+            foreach(ExternalLoginEntity externalLogin in logins)
+            {
+                userLoginInfos.Add(MEConversion.ExternalLoginE2M(externalLogin));
+            }
+
+            return userLoginInfos;
+        }
+
+        public override async Task<string> GetNormalizedEmailAsync(MangoUser user, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            UserEntity userEntity = await FindByNameEntityAsync(user.UserName, cancellationToken);
+            if (userEntity == null)
+            {
+                return null;
+            }
+            return userEntity.NormalizedEmail;
         }
 
         public override async Task<string> GetPasswordHashAsync(MangoUser user, CancellationToken cancellationToken)
@@ -349,6 +475,31 @@ namespace MangoAccountSystem.Dao
             await _userDbContext.SaveChangesAsync();
         }
 
+        public override async Task RemoveLoginAsync(MangoUser user, string loginProvider, string providerKey, CancellationToken cancellationToken)
+        {
+            if(user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if(loginProvider == null)
+            {
+                throw new ArgumentNullException(nameof(loginProvider));
+            }
+            if(providerKey == null)
+            {
+                throw new ArgumentNullException(nameof(providerKey));
+            }
+
+            UserEntity userEntity = await FindByNameEntityAsync(user.UserName, cancellationToken);
+            if(userEntity == null)
+            {
+                return;
+            }
+            var logins = await _userDbContext.ExternalLogins.Where(ex => ex.UserId == userEntity.Id && ex.LoginProvider == loginProvider && ex.ProviderKey == providerKey).ToListAsync();
+            _userDbContext.RemoveRange(logins);
+            await _userDbContext.SaveChangesAsync();
+        }
+
         public override async Task ReplaceClaimAsync(MangoUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken)
         {
             if(user == null)
@@ -380,6 +531,34 @@ namespace MangoAccountSystem.Dao
             await _userDbContext.SaveChangesAsync();
         }
 
+        public override async Task SetEmailAsync(MangoUser user, string email, CancellationToken cancellationToken)
+        {
+            if(user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if(email == null)
+            {
+                throw new ArgumentNullException(nameof(email));
+            }
+            await Task.Run(() =>
+            {
+                user.Email = email;
+            });            
+        }
+
+        public override async Task SetEmailConfirmedAsync(MangoUser user, bool confirmed, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            await Task.Run(() =>
+            {
+                user.EmailConfirmed = confirmed;
+            });
+        }
+
         public override async Task SetLoginNameAsync(MangoUser user, string loginName, CancellationToken cancellationToken)
         {
             if(user == null)
@@ -390,6 +569,22 @@ namespace MangoAccountSystem.Dao
             await Task.Run(() =>
             {
                 user.LoginName = loginName;
+            });
+        }
+
+        public override async Task SetNormalizedEmailAsync(MangoUser user, string normalizedEmail, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (normalizedEmail == null)
+            {
+                throw new ArgumentNullException(nameof(normalizedEmail));
+            }
+            await Task.Run(() =>
+            {
+                user.NormalizedEmail = normalizedEmail;
             });
         }
 
@@ -445,7 +640,7 @@ namespace MangoAccountSystem.Dao
 
         private async Task<UserEntity> FindByNameEntityAsync(string username, CancellationToken cancellationToken)
         {
-            UserEntity userEntity = await _userDbContext.MangoUsers.Where(u => u.UserName == username).SingleOrDefaultAsync();
+            UserEntity userEntity = await _userDbContext.MangoUsers.FirstOrDefaultAsync(u=>u.UserName == username);
             return userEntity;
         }
     }

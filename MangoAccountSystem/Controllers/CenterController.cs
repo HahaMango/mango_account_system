@@ -1,4 +1,5 @@
 ﻿using MangoAccountSystem.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
@@ -11,14 +12,21 @@ namespace MangoAccountSystem.Controllers
     public class CenterController : UserHelperController
     {
         private readonly UserManager<MangoUser> _userManager;
+        private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
 
-        public CenterController(UserManager<MangoUser> userManager)
+        public CenterController(UserManager<MangoUser> userManager, IAuthenticationSchemeProvider authenticationSchemeProvider)
         {
             _userManager = userManager;
+            _authenticationSchemeProvider = authenticationSchemeProvider;
         }
 
         public IActionResult Home()
         {
+            var a = _authenticationSchemeProvider.GetDefaultAuthenticateSchemeAsync();
+            var b = _authenticationSchemeProvider.GetDefaultChallengeSchemeAsync();
+            var c = _authenticationSchemeProvider.GetDefaultForbidSchemeAsync();
+            var d = _authenticationSchemeProvider.GetDefaultSignInSchemeAsync();
+            var e = _authenticationSchemeProvider.GetDefaultSignOutSchemeAsync();
             return View();
         }
 

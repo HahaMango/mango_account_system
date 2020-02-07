@@ -24,12 +24,17 @@ namespace MangoAccountSystem.Dao
 
             modelBuilder.Entity<User2Role>()
                 .HasKey(u2r => new { u2r.UserId, u2r.RoleId });
+
+            modelBuilder.Entity<ExternalLoginEntity>()
+                .HasIndex(ex => new { ex.LoginProvider, ex.ProviderKey })
+                .IsUnique();
         }
 
         public DbSet<UserEntity> MangoUsers { get; set; }
         public DbSet<UserRoleEntity> MangoUserRoles { get; set; }
         public DbSet<UserClaimEntity> MangoUserClaims { get; set; }
         public DbSet<User2Role> User2Roles { get; set; }
+        public DbSet<ExternalLoginEntity> ExternalLogins { get; set; }
     }
 
     public class UserEntity
@@ -43,6 +48,10 @@ namespace MangoAccountSystem.Dao
         public string Password { get; set; }
         [Column(TypeName = "varchar(40)")]
         public string Email { get; set; }
+        [Column(TypeName = "varchar(40)")]
+        public string NormalizedEmail { get; set; }
+
+        public bool EmailConfirmed { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreateDate { get; set; }
         public DateTime LastLoginDate { get; set; }
@@ -71,5 +80,15 @@ namespace MangoAccountSystem.Dao
     {
         public int UserId { get; set; }
         public int RoleId { get; set; }
+    }
+
+    public class ExternalLoginEntity
+    {
+        [Key]
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public string LoginProvider { get; set; }
+        public string ProviderKey { get; set; }
+        public string ProviderDisplayName { get; set; }
     }
 }

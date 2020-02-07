@@ -1,0 +1,13 @@
+version: 1.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+branches:
+  only:
+  - master
+image: Visual Studio 2017
+build:
+  project: MangoAccountSystem.sln
+  publish_wap: true
+  publish_aspnet_core: true
+  verbosity: minimal
+deploy: off
