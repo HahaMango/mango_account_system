@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Dao
 {
-    public abstract class IdentityUserStore : IUserRoleStore<MangoUser>, IUserPasswordStore<MangoUser>, IUserClaimStore<MangoUser>
+    public abstract class IdentityUserStore : IUserRoleStore<MangoUser>, IUserPasswordStore<MangoUser>, IUserClaimStore<MangoUser>,IUserEmailStore<MangoUser>,IUserLoginStore<MangoUser>
     {
 
         #region 接口适配
@@ -78,6 +78,28 @@ namespace MangoAccountSystem.Dao
         public abstract Task SetUserNameAsync(MangoUser user, string userName, CancellationToken cancellationToken);
 
         public abstract Task<IdentityResult> UpdateAsync(MangoUser user, CancellationToken cancellationToken);
+
+        public abstract Task SetEmailAsync(MangoUser user, string email, CancellationToken cancellationToken);
+
+        public abstract Task<string> GetEmailAsync(MangoUser user, CancellationToken cancellationToken);
+
+        public abstract Task<bool> GetEmailConfirmedAsync(MangoUser user, CancellationToken cancellationToken);
+
+        public abstract Task SetEmailConfirmedAsync(MangoUser user, bool confirmed, CancellationToken cancellationToken);
+
+        public abstract Task<MangoUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken);
+
+        public abstract Task<string> GetNormalizedEmailAsync(MangoUser user, CancellationToken cancellationToken);
+
+        public abstract Task SetNormalizedEmailAsync(MangoUser user, string normalizedEmail, CancellationToken cancellationToken);
+
+        public abstract Task AddLoginAsync(MangoUser user, UserLoginInfo login, CancellationToken cancellationToken);
+
+        public abstract Task RemoveLoginAsync(MangoUser user, string loginProvider, string providerKey, CancellationToken cancellationToken);
+
+        public abstract Task<IList<UserLoginInfo>> GetLoginsAsync(MangoUser user, CancellationToken cancellationToken);
+
+        public abstract Task<MangoUser> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken);
 
         #endregion
 

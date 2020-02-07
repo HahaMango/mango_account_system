@@ -41,7 +41,7 @@ namespace MangoAccountSystem
                     RequirePkce = true,
                     RequireClientSecret = false,
                     RequireConsent = false,
-                    AllowAccessTokensViaBrowser = true,              
+                    AllowAccessTokensViaBrowser = true,
 
                     //RedirectUris = {"http://localhost:8080/callback.html"},
                     //PostLogoutRedirectUris = {"http://localhost:8080"},
