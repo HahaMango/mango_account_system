@@ -19,7 +19,13 @@ environment:
   nuget_password:
     secure: V8cfjt1fzh1e4N3+bJuWJg==
 build_script:
-- ps: dotnet build -c Release
+- ps: >-
+    dotnet build -c Release
+
+    dotnet publish -c Release
+artifacts:
+- path: MangoAccountSystem\bin\Release\netcoreapp2.2\publish
+  name: mango_user_system_$(version)
 deploy:
 - provider: FTP
   aspnet_core_force_restart: true
