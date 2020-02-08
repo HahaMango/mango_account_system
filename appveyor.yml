@@ -35,3 +35,4 @@ deploy:
   password:
     secure: V8cfjt1fzh1e4N3+bJuWJg==
   folder: /home/mango_account_system
+  application: mango_user_system_$(appveyor_build_version)
