@@ -30,7 +30,7 @@ deploy:
 - provider: FTP
   aspnet_core_force_restart: true
   host: www.hahamango.cn
-  protocol: ftp
+  protocol: sftp
   username: root
   password:
     secure: V8cfjt1fzh1e4N3+bJuWJg==
