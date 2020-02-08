@@ -5,9 +5,34 @@ branches:
   only:
   - master
 image: Visual Studio 2017
-build:
-  project: MangoAccountSystem.sln
-  publish_wap: true
-  publish_aspnet_core: true
-  verbosity: minimal
-deploy: off
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  version_prefix: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
+environment:
+  nuget_user: q932104843@outlook.com
+  nuget_password:
+    secure: V8cfjt1fzh1e4N3+bJuWJg==
+build_script:
+- ps: >-
+    dotnet build -c Release
+
+    dotnet publish -c Release
+artifacts:
+- path: MangoAccountSystem\bin\Release\netcoreapp2.2\publish
+  name: mango_user_system_$(appveyor_build_version)
+deploy:
+- provider: FTP
+  aspnet_core_force_restart: true
+  host: www.hahamango.cn
+  protocol: ftp
+  username: root
+  password:
+    secure: V8cfjt1fzh1e4N3+bJuWJg==
+  folder: /home/mango_account_system
+  application: mango_user_system_$(appveyor_build_version)
