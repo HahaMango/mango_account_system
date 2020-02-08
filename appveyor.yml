@@ -18,8 +18,6 @@ environment:
   nuget_user: q932104843@outlook.com
   nuget_password:
     secure: V8cfjt1fzh1e4N3+bJuWJg==
-install:
-- ps: nuget sources add -Name MyAccountFeed -Source https://ci.appveyor.com/nuget/hahamango-6qd0o3x64q24 -UserName %nuget_user% -Password %nuget_password%
 build_script:
 - ps: dotnet build -c Release
 deploy: off
