@@ -22,7 +22,7 @@ install:
 - ps: >-
     nuget sources add -Name MyAccountFeed -Source https://ci.appveyor.com/nuget/hahamango-6qd0o3x64q24 -UserName %nuget_user% -Password %nuget_password%
 
-    nuget sources add -Source https://api.nuget.org/v3/index.json
+    nuget sources add -Name nuget.org -Source https://api.nuget.org/v3/index.json
 nuget:
   project_feed: true
 build_script:
