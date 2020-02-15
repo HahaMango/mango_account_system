@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <UserSecretsId>9b6afc49-e527-45b8-9438-2807e10a5fd3</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -13,9 +14,7 @@
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Gitee" Version="2.2.0" />
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="2.2.0" />
-    <PackageReference Include="AspNet.Security.OAuth.QQ" Version="2.2.0" />
     <PackageReference Include="AspNet.Security.OAuth.Weibo" Version="2.2.0" />
-    <PackageReference Include="AspNet.Security.OAuth.Weixin" Version="2.2.0" />
     <PackageReference Include="IdentityServer4" Version="2.5.3" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.5.3" />
     <PackageReference Include="Microsoft.AspNetCore.App" />

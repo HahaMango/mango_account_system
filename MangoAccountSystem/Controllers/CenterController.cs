@@ -22,11 +22,6 @@ namespace MangoAccountSystem.Controllers
 
         public IActionResult Home()
         {
-            var a = _authenticationSchemeProvider.GetDefaultAuthenticateSchemeAsync();
-            var b = _authenticationSchemeProvider.GetDefaultChallengeSchemeAsync();
-            var c = _authenticationSchemeProvider.GetDefaultForbidSchemeAsync();
-            var d = _authenticationSchemeProvider.GetDefaultSignInSchemeAsync();
-            var e = _authenticationSchemeProvider.GetDefaultSignOutSchemeAsync();
             return View();
         }
 
