@@ -1,7 +1,10 @@
 ﻿using IdentityServer4.Services;
+using MangoAccountSystem.Helper;
 using MangoAccountSystem.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Controllers
@@ -10,18 +13,91 @@ namespace MangoAccountSystem.Controllers
     {
         private readonly IIdentityServerInteractionService _interaction;
         private readonly SignInManager<MangoUser> _signInManager;
+        private readonly UserManager<MangoUser> _userManager;
 
-        public ExternalController(SignInManager<MangoUser> signInManager, IIdentityServerInteractionService identityServerInteractionService)
+        public ExternalController(SignInManager<MangoUser> signInManager, IIdentityServerInteractionService identityServerInteractionService,UserManager<MangoUser> userManager)
         {
             _signInManager = signInManager;
             _interaction = identityServerInteractionService;
+            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<IActionResult> Callback(string returnUrl)
         {
             var info = await _signInManager.GetExternalLoginInfoAsync();
-            return View();
+
+            if(info == null)
+            {
+                return RedirectToAction("Login", "Account", returnUrl);
+            }
+
+            ClaimsPrincipal externalUser = info.Principal;
+
+            string providerkey = info.ProviderKey;
+            string provider = info.LoginProvider;
+
+            var props = new AuthenticationProperties();
+            props.StoreTokens(info.AuthenticationTokens);
+
+            var result = await _signInManager.ExternalLoginSignInAsync(provider, providerkey, false, false);
+            if (result.Succeeded)
+            {
+                var user = await _userManager.FindByLoginAsync(provider, providerkey);
+
+                await _signInManager.SignInAsync(user, props, provider);
+
+                return Redirect(returnUrl);
+            }
+
+            string userName = externalUser.Identity.Name;
+            string email = externalUser.FindFirst(ClaimTypes.Email)?.Value;
+
+            MangoUser mangoUser = await _userManager.FindByEmailAsync(email);
+            if(mangoUser != null)
+            {
+                var addLoginFlag = await _userManager.AddLoginAsync(mangoUser, info);
+
+                if (addLoginFlag.Succeeded)
+                {
+                    await _signInManager.SignInAsync(mangoUser, props, provider);
+                    return Redirect(returnUrl);
+                }
+            }
+            else
+            {
+                mangoUser = new MangoUser
+                {
+                    UserName = userName,
+                    Email = email
+                };
+                while(await _userManager.FindByNameAsync(mangoUser.UserName) != null)
+                {
+                    mangoUser.UserName += RandomString.NextString(1);
+                }
+
+                var createUserFlag = await _userManager.CreateAsync(mangoUser);
+
+                mangoUser = await _userManager.FindByNameAsync(mangoUser.UserName);
+
+                await _userManager.AddToRoleAsync(mangoUser, "USER");
+
+                if (createUserFlag.Succeeded)
+                {
+                    var addLoginFlag = await _userManager.AddLoginAsync(mangoUser, info);
+
+                    if (addLoginFlag.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(mangoUser, props, provider);
+
+                        return Redirect(returnUrl);
+                    }
+                }
+
+            }
+
+            ViewData["Message"] = $"{provider}:Login error occurred!";
+            return View("ResultPage");
         }
 
         [HttpGet]

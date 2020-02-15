@@ -118,13 +118,16 @@ namespace MangoAccountSystem.Controllers
                 Email = signUpInputModel.Email
             };
             var flag = await _userManager.CreateAsync(mangoUser,signUpInputModel.Password);
+            mangoUser = await _userManager.FindByNameAsync(mangoUser.UserName);
+            await _userManager.AddToRoleAsync(mangoUser, "USER");
+
             if (!flag.Succeeded)
             {
-                ViewData["SignUpResult"] = "Registration error occurred!";
+                ViewData["Message"] = "Registration error occurred!";
             }
             else
             {
-                ViewData["SignUpResult"] = "Registration Successful!";
+                ViewData["Message"] = "Registration Successful!";
             }
             return View("ResultPage");
         }
