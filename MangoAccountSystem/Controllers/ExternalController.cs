@@ -1,7 +1,6 @@
 ﻿using IdentityServer4.Services;
 using MangoAccountSystem.Helper;
 using MangoAccountSystem.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -37,16 +36,9 @@ namespace MangoAccountSystem.Controllers
             string providerkey = info.ProviderKey;
             string provider = info.LoginProvider;
 
-            var props = new AuthenticationProperties();
-            props.StoreTokens(info.AuthenticationTokens);
-
             var result = await _signInManager.ExternalLoginSignInAsync(provider, providerkey, false, false);
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByLoginAsync(provider, providerkey);
-
-                await _signInManager.SignInAsync(user, props, provider);
-
                 return Redirect(returnUrl);
             }
 
@@ -60,7 +52,7 @@ namespace MangoAccountSystem.Controllers
 
                 if (addLoginFlag.Succeeded)
                 {
-                    await _signInManager.SignInAsync(mangoUser, props, provider);
+                    await _signInManager.SignInAsync(mangoUser, false, provider);
                     return Redirect(returnUrl);
                 }
             }
@@ -88,7 +80,7 @@ namespace MangoAccountSystem.Controllers
 
                     if (addLoginFlag.Succeeded)
                     {
-                        await _signInManager.SignInAsync(mangoUser, props, provider);
+                        await _signInManager.SignInAsync(mangoUser, false, provider);
 
                         return Redirect(returnUrl);
                     }
@@ -96,12 +88,12 @@ namespace MangoAccountSystem.Controllers
 
             }
 
-            ViewData["Message"] = $"{provider}:Login error occurred!";
+            ViewData["Message"] = $"{provider}:External Login error occurred!";
             return View("ResultPage");
         }
 
         [HttpGet]
-        public async Task<IActionResult> Challenge(string returnUrl,string provider)
+        public IActionResult Challenge(string returnUrl, string provider)
         {
             if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false)
             {
@@ -119,7 +111,7 @@ namespace MangoAccountSystem.Controllers
             });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
 
-            return Challenge(properties,provider);
+            return Challenge(properties, provider);
         }
     }
 }

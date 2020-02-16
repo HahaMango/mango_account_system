@@ -28,12 +28,13 @@ namespace MangoAccountSystem.Controllers
         [Authorize]
         public async Task<IActionResult> User()
         {
-            string username = base.User.Identity.Name;
             bool isauth = base.User.Identity.IsAuthenticated;
             if (!isauth)
             {
                 return Redirect("/");
             }
+            string username = base.User.Identity.Name;
+
             MangoUser mangoUser = await _userManager.FindByNameAsync(username);
 
             return View(mangoUser);

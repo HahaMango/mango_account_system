@@ -37,7 +37,9 @@
                         if (isAuthenticated)
                         {
                             <form class="form-inline my-2 my-lg-0" action="/account/logout" method="post">
-                                <a class="mr-sm-2" href="/center/user"><label>@userName</label></a>
+                                <div class="mr-sm-2">
+                                    <a href="/center/user"><label>@userName</label></a>
+                                </div>                                
                                 <input type="hidden" value="@userName" name="username" />
                                 <input type="hidden" name="returnurl" id="logoutReturnUrl"/>
                                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="document.getElementById('logoutReturnUrl').value = window.location.href">Logout</button>

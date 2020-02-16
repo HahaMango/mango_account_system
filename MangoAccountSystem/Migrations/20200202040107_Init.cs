@@ -78,6 +78,9 @@ namespace MangoAccountSystem.Migrations
                 table: "MangoUsers",
                 column: "UserName",
                 unique: true);
+
+            migrationBuilder.InsertData("MangoUserRoles", "RoleName","USER");
+            migrationBuilder.InsertData("MangoUserRoles", "RoleName", "ADMIN");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

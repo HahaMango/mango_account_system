@@ -12,6 +12,16 @@ SSO System Base on IdentityServer and AspDotNetCore Identity
 
 基于`IdentityServer4`，用`Identity`来进行用户信息管理，所有的用户信息表经过重新设计（自定义），`Identity`中的默认EF储存也被重写过以适配新的用户信息表。
 
+主页：
+
+![HomePage](https://s2.ax1x.com/2020/02/16/3pK9H0.png)
+
+登陆页面：
+![LoginPage](https://s2.ax1x.com/2020/02/16/3pKpBq.png)
+
+用户信息页面：
+![UserInfo Page](https://s2.ax1x.com/2020/02/16/3puxjs.png)
+
 ## 环境
 
 - `.Asp.Net Core 2.2`
