@@ -233,12 +233,7 @@ namespace MangoAccountSystem.Dao
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            UserEntity userEntity = await FindByNameEntityAsync(user.UserName, cancellationToken);
-            if(userEntity == null)
-            {
-                return null;
-            }
-            return userEntity.Email;
+            return await Task.FromResult(user.Email);
         }
 
         public override async Task<bool> GetEmailConfirmedAsync(MangoUser user, CancellationToken cancellationToken)

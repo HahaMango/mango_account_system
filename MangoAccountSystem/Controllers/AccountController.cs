@@ -1,9 +1,11 @@
 ﻿using IdentityServer4;
+using IdentityServer4.Services;
 using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Controllers
@@ -13,43 +15,39 @@ namespace MangoAccountSystem.Controllers
         private readonly SignInManager<MangoUser> _signInManager;
         private readonly UserManager<MangoUser> _userManager;
         private readonly RoleManager<MangoUserRole> _roleManager;
+        private readonly IIdentityServerInteractionService _interaction;
+        private readonly IAuthenticationSchemeProvider _schemeProvider;
 
-        public AccountController(SignInManager<MangoUser> signInManager,UserManager<MangoUser> userManager,RoleManager<MangoUserRole> roleManager, IAuthenticationSchemeProvider authenticationSchemeProvider)
+        public AccountController(
+            SignInManager<MangoUser> signInManager,
+            UserManager<MangoUser> userManager,RoleManager<MangoUserRole> roleManager, 
+            IAuthenticationSchemeProvider authenticationSchemeProvider,
+            IIdentityServerInteractionService identityServerInteractionService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _roleManager = roleManager;
+            _interaction = identityServerInteractionService;
+            _schemeProvider = authenticationSchemeProvider;
         }
 
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public async Task<IActionResult> Login(string returnUrl = null)
         {
             if(returnUrl == null)
             {
                 returnUrl = "/";
             }
-            LoginViewModels loginViewModels = new LoginViewModels
-            {
-                ReturnUrl = returnUrl
-            };
+
+            LoginViewModels loginViewModels = await GetLoginViewModels(returnUrl);
+
             return View(loginViewModels);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> LocalLogin()
-        {
-            var exernalProviders = await _signInManager.GetExternalAuthenticationSchemesAsync();
-            foreach(AuthenticationScheme scheme in exernalProviders)
-            {
-
-            }
-            return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginInputModels loginInputModels)
         {
-            LoginViewModels loginView = new LoginViewModels();
+            LoginViewModels loginView = await GetLoginViewModels(loginInputModels.ReturnUrl);
             string username = loginInputModels.UserName;
             string password = loginInputModels.Password;
 
@@ -120,13 +118,16 @@ namespace MangoAccountSystem.Controllers
                 Email = signUpInputModel.Email
             };
             var flag = await _userManager.CreateAsync(mangoUser,signUpInputModel.Password);
+            mangoUser = await _userManager.FindByNameAsync(mangoUser.UserName);
+            await _userManager.AddToRoleAsync(mangoUser, "USER");
+
             if (!flag.Succeeded)
             {
-                ViewData["SignUpResult"] = "Registration error occurred!";
+                ViewData["Message"] = "Registration error occurred!";
             }
             else
             {
-                ViewData["SignUpResult"] = "Registration Successful!";
+                ViewData["Message"] = "Registration Successful!";
             }
             return View("ResultPage");
         }
@@ -190,6 +191,36 @@ namespace MangoAccountSystem.Controllers
                 loginView.ValidationErrors = "请填写密码";
                 return;
             }
+        }
+
+        private async Task<LoginViewModels> GetLoginViewModels(string returnUrl)
+        {
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+
+            if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false)
+            {
+                throw new System.Exception("invalid return URL");
+            }
+
+            LoginViewModels loginViewModels = new LoginViewModels
+            {
+                ReturnUrl = returnUrl
+            };
+
+            var a = await _schemeProvider.GetAllSchemesAsync();
+            if(context !=null && context.IdP != null)
+            {
+                bool onlyLocalLogin = context.IdP == IdentityServerConstants.LocalIdentityProvider;
+                loginViewModels.OnlyLocalLogin = onlyLocalLogin;
+            }
+
+            loginViewModels.LoginSchemes = new List<AuthenticationScheme>();
+            foreach(var s in await _schemeProvider.GetRequestHandlerSchemesAsync())
+            {
+                loginViewModels.LoginSchemes.Add(s);
+            }
+
+            return loginViewModels;
         }
     }
 }

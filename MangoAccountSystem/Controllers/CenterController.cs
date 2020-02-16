@@ -22,23 +22,19 @@ namespace MangoAccountSystem.Controllers
 
         public IActionResult Home()
         {
-            var a = _authenticationSchemeProvider.GetDefaultAuthenticateSchemeAsync();
-            var b = _authenticationSchemeProvider.GetDefaultChallengeSchemeAsync();
-            var c = _authenticationSchemeProvider.GetDefaultForbidSchemeAsync();
-            var d = _authenticationSchemeProvider.GetDefaultSignInSchemeAsync();
-            var e = _authenticationSchemeProvider.GetDefaultSignOutSchemeAsync();
             return View();
         }
 
         [Authorize]
         public async Task<IActionResult> User()
         {
-            string username = base.User.Identity.Name;
             bool isauth = base.User.Identity.IsAuthenticated;
             if (!isauth)
             {
                 return Redirect("/");
             }
+            string username = base.User.Identity.Name;
+
             MangoUser mangoUser = await _userManager.FindByNameAsync(username);
 
             return View(mangoUser);

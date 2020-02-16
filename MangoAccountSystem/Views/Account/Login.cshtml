@@ -3,14 +3,14 @@
     ViewData["Title"] = "Mango Login";
 }
 <div class="row">
-    <div class="col-sm-8">     
+    <div class="col-sm-7">
     </div>
-    <div class="col-sm-4">
-        <div class="card text-white bg-dark mb-3" style="max-width: 18rem; margin-top:60px;margin-left:auto;margin-right:auto;">
+    <div class="col-sm-5">
+        <div class="card text-white bg-dark mb-3" style="max-width: 22rem; margin-top:60px;margin-left:auto;margin-right:auto;">
             <div class="card-header">Mango User</div>
             <div class="card-body">
                 <form action="/account/login" method="post">
-                    <input type="hidden" value="@Model.ReturnUrl" name="returnurl"/>
+                    <input type="hidden" value="@Model.ReturnUrl" name="returnurl" />
                     <div class="form-group">
                         <label for="exampleInputEmail1">UserName</label>
                         <input type="text" class="form-control" name="username" value="@Model.UserName">
@@ -26,8 +26,28 @@
                         }
                     </div>
                     <button type="submit" style="display:inline;" class="btn btn-success">Login</button>
-                    <button type="button" style="display:inline; margin-left:10px;" class="btn btn-outline-success" onclick="window.location.href = '/account/signup'">Sign Up</button>                 
+                    <button type="button" style="display:inline; margin-left:10px;" class="btn btn-outline-success" onclick="window.location.href = '/account/signup'">Sign Up</button>
                 </form>
+                @{
+                    if (!Model.OnlyLocalLogin)
+                    {
+                        <hr style="border-color:gray" />
+                        <div style="height:50px;padding-top:9px;padding-bottom:9px;">
+                            <div style="height:32px;width:90px;margin-left:auto;margin-right:auto;">
+                                @{
+                                    foreach (var s in Model.LoginSchemes)
+                                    {
+                                        string filename = s.Name + ".svg";
+                                        string url = $"/external/challenge?returnUrl={Model.ReturnUrl}&provider={s.Name}";
+                                        <a href="@url" style="margin:0px 5px 0px 5px;">
+                                            <img src="~/img/@filename" />
+                                        </a>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                }
             </div>
         </div>
     </div>

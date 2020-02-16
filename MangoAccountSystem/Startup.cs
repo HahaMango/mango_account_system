@@ -1,18 +1,16 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using MangoAccountSystem.Dao;
+using MangoAccountSystem.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MangoAccountSystem.Dao;
-using MangoAccountSystem.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.HttpOverrides;
 using System.Security.Cryptography.X509Certificates;
-using IdentityServer4;
-using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
 
 namespace MangoAccountSystem
 {
@@ -65,7 +63,7 @@ namespace MangoAccountSystem
 
             //配置identityserver4
             services.AddIdentityServer()
-                .AddAspNetIdentity<MangoUser>()                
+                .AddAspNetIdentity<MangoUser>()
                 .AddSigningCredential(new X509Certificate2(Configuration["IdentityServerPfx:Path"], Configuration["IdentityServerPfx:Password"]))
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients(Configuration))
@@ -78,7 +76,7 @@ namespace MangoAccountSystem
                       options.ClientId = "a932e62826483a7e78b1";
                       options.ClientSecret = "acf498e0eaa8eee1463f50e617c878e2d085ff71";
 
-                      //options.SaveTokens = true;
+                      options.SaveTokens = true;
                       options.Scope.Add("user");
 
                       options.ClaimActions.MapJsonKey("mangouser:email", "email");
