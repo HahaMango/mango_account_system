@@ -1,5 +1,9 @@
-﻿using MangoAccountSystem.Dao;
+﻿using MangoAccountSystem.Component;
+using MangoAccountSystem.Component.Imp;
+using MangoAccountSystem.Dao;
 using MangoAccountSystem.Models;
+using MangoAccountSystem.Service;
+using MangoAccountSystem.Service.Imp;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -60,6 +64,9 @@ namespace MangoAccountSystem
 
             services.AddScoped<IUserStore<MangoUser>, MangoUserStore>();
             services.AddScoped<IRoleStore<MangoUserRole>, MangoUserRoleStore>();
+
+            services.AddSingleton<IEmailComponent, EmailComponent>();
+            services.AddSingleton<IEmailService, EmailService>();
 
             //配置identityserver4
             services.AddIdentityServer()

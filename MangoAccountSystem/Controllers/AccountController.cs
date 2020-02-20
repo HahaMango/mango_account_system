@@ -153,20 +153,8 @@ namespace MangoAccountSystem.Controllers
         }
 
         [HttpGet]
-        public IActionResult Test()
+        public async Task Test()
         {
-            string returnUrl = "/";
-            var redirectUrl = Url.Action(new Microsoft.AspNetCore.Mvc.Routing.UrlActionContext
-            {
-                Controller = "External",
-                Action = "Callback",
-                Values = new
-                {
-                    returnUrl
-                }
-            });
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties("gitee", redirectUrl);
-            return Challenge(properties, "gitee");
         }
 
         private async Task LoginUserNameValidation(LoginViewModels loginView,string username)
