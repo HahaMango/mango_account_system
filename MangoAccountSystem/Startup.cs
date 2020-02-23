@@ -83,7 +83,6 @@ namespace MangoAccountSystem
                       options.ClientId = "a932e62826483a7e78b1";
                       options.ClientSecret = "acf498e0eaa8eee1463f50e617c878e2d085ff71";
 
-                      options.SaveTokens = true;
                       options.Scope.Add("user");
 
                       options.ClaimActions.MapJsonKey("mangouser:email", "email");

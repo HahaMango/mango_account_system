@@ -39,7 +39,7 @@ namespace MangoAccountSystem.Controllers
                 returnUrl = "/";
             }
 
-            LoginViewModels loginViewModels = await GetLoginViewModels(returnUrl);
+            LoginViewModels loginViewModels = await GetLoginViewModelsAsync(returnUrl);
 
             return View(loginViewModels);
         }
@@ -47,7 +47,7 @@ namespace MangoAccountSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginInputModels loginInputModels)
         {
-            LoginViewModels loginView = await GetLoginViewModels(loginInputModels.ReturnUrl);
+            LoginViewModels loginView = await GetLoginViewModelsAsync(loginInputModels.ReturnUrl);
             string username = loginInputModels.UserName;
             string password = loginInputModels.Password;
 
@@ -132,24 +132,26 @@ namespace MangoAccountSystem.Controllers
             return View("ResultPage");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Logout(string userName, string returnUrl)
-        {          
-            if(userName == null)
+        [HttpGet]
+        public async Task<IActionResult> Logout(string logoutid)
+        {
+            LoggedViewModel vm;
+
+            if (string.IsNullOrEmpty(logoutid))
             {
-                throw new ArgumentNullException();
+                vm = new LoggedViewModel();
+            }
+            else
+            {
+                vm = await GetLoggedViewModelsAsync(logoutid);
             }
 
-            string requestUrl = returnUrl;
-            
-            if(userName != User.Identity.Name && !User.Identity.IsAuthenticated)
+            if (User?.Identity.IsAuthenticated == true)
             {
-                return Redirect(requestUrl);
+                await _signInManager.SignOutAsync();
             }
 
-            await _signInManager.SignOutAsync();
-
-            return Redirect(requestUrl);
+            return View(vm);
         }
 
         [HttpGet]
@@ -181,7 +183,7 @@ namespace MangoAccountSystem.Controllers
             }
         }
 
-        private async Task<LoginViewModels> GetLoginViewModels(string returnUrl)
+        private async Task<LoginViewModels> GetLoginViewModelsAsync(string returnUrl)
         {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
 
@@ -209,6 +211,28 @@ namespace MangoAccountSystem.Controllers
             }
 
             return loginViewModels;
+        }
+
+        private async Task<LoggedViewModel> GetLoggedViewModelsAsync(string logoutid)
+        {
+            var logoutContext = await _interaction.GetLogoutContextAsync(logoutid);
+
+            LoggedViewModel loggedViewModel = new LoggedViewModel();
+
+            if (logoutContext == null)
+            {
+                return loggedViewModel;
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(logoutContext.PostLogoutRedirectUri))
+                {
+                    throw new InvalidOperationException($"该登陆id没有登出返回链接，Id：{logoutid}，ClientName：{logoutContext.ClientName}");
+                }
+                loggedViewModel.LogoutReturnUrl = logoutContext.PostLogoutRedirectUri;
+            }
+
+            return loggedViewModel;
         }
     }
 }
