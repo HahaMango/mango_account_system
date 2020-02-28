@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Dao
 {
+	/// <summary>
+	/// 自定义Identity的角色管理器储存逻辑，自定义表结构
+	/// </summary>
     public abstract class IdentityRoleStore : IRoleStore<MangoUserRole>
     {
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace MangoAccountSystem
 {
-    public class Config
+    public static class Config
     {
         private const string RoleType = "role";
         private const string NameType = "name";

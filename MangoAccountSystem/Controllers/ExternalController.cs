@@ -8,12 +8,32 @@ using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Controllers
 {
+	/// <summary>
+	/// 第三方登陆控制器
+	/// </summary>
     public class ExternalController : UserHelperController
     {
+		/// <summary>
+		/// IdentityServer 交互服务
+		/// </summary>
         private readonly IIdentityServerInteractionService _interaction;
+
+		/// <summary>
+		/// Identity登陆管理器
+		/// </summary>
         private readonly SignInManager<MangoUser> _signInManager;
+
+		/// <summary>
+		/// Identity用户管理器
+		/// </summary>
         private readonly UserManager<MangoUser> _userManager;
 
+		/// <summary>
+		/// 构造函数
+		/// </summary>
+		/// <param name="signInManager"></param>
+		/// <param name="identityServerInteractionService"></param>
+		/// <param name="userManager"></param>
         public ExternalController(SignInManager<MangoUser> signInManager, IIdentityServerInteractionService identityServerInteractionService,UserManager<MangoUser> userManager)
         {
             _signInManager = signInManager;
@@ -21,6 +41,11 @@ namespace MangoAccountSystem.Controllers
             _userManager = userManager;
         }
 
+		/// <summary>
+		/// 第三方授权后的回调入口，包含新用户注册逻辑。
+		/// </summary>
+		/// <param name="returnUrl"></param>
+		/// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Callback(string returnUrl)
         {
@@ -92,6 +117,12 @@ namespace MangoAccountSystem.Controllers
             return View("ResultPage");
         }
 
+		/// <summary>
+		/// 发起第三方登陆跳转
+		/// </summary>
+		/// <param name="returnUrl"></param>
+		/// <param name="provider"></param>
+		/// <returns></returns>
         [HttpGet]
         public IActionResult Challenge(string returnUrl, string provider)
         {
