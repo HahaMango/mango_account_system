@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace MangoAccountSystem.Models
 {
+	/// <summary>
+	/// 用户业务对象
+	/// </summary>
     public class MangoUser
     {
         public int Id { get; set; }

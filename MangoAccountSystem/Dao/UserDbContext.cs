@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MangoAccountSystem.Dao
 {
+	/// <summary>
+	/// 用户数据库上下文
+	/// </summary>
     public class UserDbContext : DbContext
     {
         public UserDbContext(DbContextOptions dbContextOptionsBuilder) : base(dbContextOptionsBuilder)
@@ -37,6 +40,9 @@ namespace MangoAccountSystem.Dao
         public DbSet<ExternalLoginEntity> ExternalLogins { get; set; }
     }
 
+	/// <summary>
+	/// 用户表
+	/// </summary>
     public class UserEntity
     {
         [Key]
@@ -57,6 +63,9 @@ namespace MangoAccountSystem.Dao
         public DateTime LastLoginDate { get; set; }
     }
 
+	/// <summary>
+	/// 角色表
+	/// </summary>
     public class UserRoleEntity
     {
         [Key]
@@ -65,6 +74,9 @@ namespace MangoAccountSystem.Dao
         public string RoleName { get; set; }
     }
 
+	/// <summary>
+	/// 角色声明表
+	/// </summary>
     public class UserClaimEntity
     {
         [Key]
@@ -76,12 +88,18 @@ namespace MangoAccountSystem.Dao
         public string ClaimValue { get; set; }
     }
 
+	/// <summary>
+	/// 角色 用户表
+	/// </summary>
     public class User2Role
     {
         public int UserId { get; set; }
         public int RoleId { get; set; }
     }
 
+	/// <summary>
+	/// 外部登陆表
+	/// </summary>
     public class ExternalLoginEntity
     {
         [Key]

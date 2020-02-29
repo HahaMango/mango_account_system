@@ -9,10 +9,20 @@ using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Controllers
 {
+	/// <summary>
+	/// 主页
+	/// </summary>
     public class CenterController : UserHelperController
     {
+		/// <summary>
+		/// Identity用户管理器
+		/// </summary>
         private readonly UserManager<MangoUser> _userManager;
-        private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
+
+		/// <summary>
+		/// 授权方案服务
+		/// </summary>
+		private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
 
         public CenterController(UserManager<MangoUser> userManager, IAuthenticationSchemeProvider authenticationSchemeProvider)
         {
@@ -20,11 +30,19 @@ namespace MangoAccountSystem.Controllers
             _authenticationSchemeProvider = authenticationSchemeProvider;
         }
 
+		/// <summary>
+		/// 主页入口
+		/// </summary>
+		/// <returns></returns>
         public IActionResult Home()
         {
             return View();
         }
 
+		/// <summary>
+		/// 用户信息入口
+		/// </summary>
+		/// <returns></returns>
         [Authorize]
         public async Task<IActionResult> User()
         {
@@ -40,6 +58,10 @@ namespace MangoAccountSystem.Controllers
             return View(mangoUser);
         }
 
+		/// <summary>
+		/// 错误页面
+		/// </summary>
+		/// <returns></returns>
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         [AllowAnonymous]
         public IActionResult Error()

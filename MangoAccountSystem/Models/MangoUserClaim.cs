@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MangoAccountSystem.Models
 {
+	/// <summary>
+	/// 用户声明业务对象
+	/// </summary>
     public class MangoUserClaim
     {
         public int Id { get; set; }

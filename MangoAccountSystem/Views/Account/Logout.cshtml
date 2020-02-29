@@ -1,0 +1,25 @@
+﻿@model MangoAccountSystem.Models.LoggedViewModel
+@{
+    ViewData["Title"] = "Logout";
+}
+
+<div class="text-center">
+    <div style="margin-top:150px;">
+        <h1>Logout Successful</h1>
+    </div>
+    @{
+        if (!string.IsNullOrEmpty(Model.LogoutReturnUrl))
+        {
+            <div>
+                Click <a class="PostLogoutRedirectUri" href="@Model.LogoutReturnUrl">here</a> to return to the
+                <span>Mango Bolg</span> application.
+            </div>
+        }
+        else
+        {
+            <div>
+                Click <a class="PostLogoutRedirectUri" href="/">here</a> to return to the Home Page.
+            </div>
+        }
+    }
+</div>

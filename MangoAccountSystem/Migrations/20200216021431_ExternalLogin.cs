@@ -40,6 +40,8 @@ namespace MangoAccountSystem.Migrations
                 table: "ExternalLogins",
                 columns: new[] { "LoginProvider", "ProviderKey" },
                 unique: true);
+
+            migrationBuilder.Sql("update mangosystem.mangousers set NormalizedEmail = upper(Email) where Email is not NULL and Id > 0;");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

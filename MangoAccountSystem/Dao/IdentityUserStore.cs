@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Dao
 {
+	/// <summary>
+	/// 自定义Identity的用户管理器，自定义表结构
+	/// </summary>
     public abstract class IdentityUserStore : IUserRoleStore<MangoUser>, IUserPasswordStore<MangoUser>, IUserClaimStore<MangoUser>,IUserEmailStore<MangoUser>,IUserLoginStore<MangoUser>
     {
 

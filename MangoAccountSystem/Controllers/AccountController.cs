@@ -1,226 +1,258 @@
-﻿using IdentityServer4;
+﻿using System;
+using System.Threading.Tasks;
 using IdentityServer4.Services;
 using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Controllers
 {
-    public class AccountController : UserHelperController
-    {
-        private readonly SignInManager<MangoUser> _signInManager;
-        private readonly UserManager<MangoUser> _userManager;
-        private readonly RoleManager<MangoUserRole> _roleManager;
-        private readonly IIdentityServerInteractionService _interaction;
-        private readonly IAuthenticationSchemeProvider _schemeProvider;
+	/// <summary>
+	/// 跟登陆，登出，注册有关的控制器
+	/// </summary>
+	public class AccountController : UserHelperController
+	{
+		/// <summary>
+		/// Identity登陆管理器
+		/// </summary>
+		private readonly SignInManager<MangoUser> _signInManager;
 
-        public AccountController(
-            SignInManager<MangoUser> signInManager,
-            UserManager<MangoUser> userManager,RoleManager<MangoUserRole> roleManager, 
-            IAuthenticationSchemeProvider authenticationSchemeProvider,
-            IIdentityServerInteractionService identityServerInteractionService)
-        {
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _interaction = identityServerInteractionService;
-            _schemeProvider = authenticationSchemeProvider;
-        }
+		/// <summary>
+		/// Identity用户管理器
+		/// </summary>
+		private readonly UserManager<MangoUser> _userManager;
 
-        [HttpGet]
-        public async Task<IActionResult> Login(string returnUrl = null)
-        {
-            if(returnUrl == null)
-            {
-                returnUrl = "/";
-            }
+		/// <summary>
+		/// Identity角色管理器
+		/// </summary>
+		private readonly RoleManager<MangoUserRole> _roleManager;
 
-            LoginViewModels loginViewModels = await GetLoginViewModels(returnUrl);
+		/// <summary>
+		/// IdentityServer4的交互服务
+		/// </summary>
+		private readonly IIdentityServerInteractionService _interaction;
 
-            return View(loginViewModels);
-        }
+		/// <summary>
+		/// 授权方案服务
+		/// </summary>
+		private readonly IAuthenticationSchemeProvider _schemeProvider;
 
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginInputModels loginInputModels)
-        {
-            LoginViewModels loginView = await GetLoginViewModels(loginInputModels.ReturnUrl);
-            string username = loginInputModels.UserName;
-            string password = loginInputModels.Password;
+		/// <summary>
+		/// 构造函数
+		/// </summary>
+		/// <param name="signInManager"></param>
+		/// <param name="userManager"></param>
+		/// <param name="roleManager"></param>
+		/// <param name="authenticationSchemeProvider"></param>
+		/// <param name="identityServerInteractionService"></param>
+		public AccountController(
+			SignInManager<MangoUser> signInManager,
+			UserManager<MangoUser> userManager, RoleManager<MangoUserRole> roleManager,
+			IAuthenticationSchemeProvider authenticationSchemeProvider,
+			IIdentityServerInteractionService identityServerInteractionService)
+		{
+			_signInManager = signInManager;
+			_userManager = userManager;
+			_roleManager = roleManager;
+			_interaction = identityServerInteractionService;
+			_schemeProvider = authenticationSchemeProvider;
+		}
 
-            await LoginUserNameValidation(loginView,username);
-            await LoginPasswordValidation(loginView, password);
+		/// <summary>
+		/// 登陆接口
+		/// </summary>
+		/// <param name="returnUrl"></param>
+		/// <returns></returns>
+		[HttpGet]
+		public async Task<IActionResult> Login(string returnUrl = null)
+		{
+			if (returnUrl == null)
+			{
+				returnUrl = "/";
+			}
 
-            if (loginView.IsError)
-            {
-                loginView.UserName = username;
-                return View(loginView);
-            }
+			LoginInputModels loginInputModels = await GetLoginViewModelsAsync(returnUrl);
 
-            var success = await _signInManager.PasswordSignInAsync(username, password, false, false);
-            if (!success.Succeeded)
-            {
-                loginView.ValidationErrors = "用户名和密码不正确";
-                loginView.UserName = username;
-                return View(loginView);
-            }
-            var mangouser = await _userManager.FindByNameAsync(username);
-            mangouser.LastLoginDate = DateTime.Now;
-            await _userManager.UpdateAsync(mangouser);
+			return View(loginInputModels);
+		}
 
-            return Redirect(loginInputModels.ReturnUrl);
-        }
+		/// <summary>
+		/// 登陆表单提交入口
+		/// </summary>
+		/// <param name="loginInputModels"></param>
+		/// <returns></returns>
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Login([Bind("UserName,Password,OnlyLocalLogin,ReturnUrl")]LoginInputModels loginInputModels)
+		{
+			if (loginInputModels == null)
+			{
+				throw new ArgumentNullException(nameof(loginInputModels));
+			}
 
-        [HttpGet]
-        public IActionResult SignUp()
-        {
-            return View(new SignUpViewModel());
-        }
+			if (!ModelState.IsValid)
+			{
+				return View(loginInputModels);
+			}
 
-        [HttpPost]
-        public async Task<IActionResult> SignUp(SignUpInputModel signUpInputModel)
-        {
-            SignUpViewModel signUpViewModel = new SignUpViewModel();
-            if (signUpInputModel.UserName == null || signUpInputModel.UserName == "")
-            {
-                signUpViewModel.UserNameErrors = "用户名不能为空";
-            }
-            if(signUpInputModel.Password == null || signUpInputModel.Password == "" || signUpInputModel.PasswordConfirm == null || signUpInputModel.PasswordConfirm == "")
-            {
-                signUpViewModel.PasswordErrors = "密码不能为空";
-            }
-            if(signUpInputModel.Password != signUpInputModel.PasswordConfirm)
-            {
-                signUpViewModel.PasswordErrors = "两次输入的密码不正确";
-            }
-            if (!signUpInputModel.IsAgree)
-            {
-                signUpViewModel.AgreeErrors = "请勾选同意协议";
-            }
-            if (signUpViewModel.IsAgreeError || signUpViewModel.IsPasswordError || signUpViewModel.IsUserNameError)
-            {
-                signUpViewModel.UserName = signUpInputModel.UserName;
-                signUpViewModel.Email = signUpInputModel.Email;
-                return View(signUpViewModel);
-            }
+			if (await _userManager.FindByNameAsync(loginInputModels.UserName) == null)
+			{
+				ModelState.AddModelError("UserName", "该用户名不存在");
+				return View(loginInputModels);
+			}
 
-            if (await _userManager.FindByNameAsync(signUpInputModel.UserName) != null)
-            {
-                signUpViewModel.UserNameErrors = "该用户名已存在";
-                return View(signUpViewModel);
-            }
-            MangoUser mangoUser = new MangoUser
-            {
-                UserName = signUpInputModel.UserName,
-                Email = signUpInputModel.Email
-            };
-            var flag = await _userManager.CreateAsync(mangoUser,signUpInputModel.Password);
-            mangoUser = await _userManager.FindByNameAsync(mangoUser.UserName);
-            await _userManager.AddToRoleAsync(mangoUser, "USER");
+			var success = await _signInManager.PasswordSignInAsync(loginInputModels.UserName, loginInputModels.Password, false, false);
+			if (!success.Succeeded)
+			{
+				ModelState.AddModelError("Password", "密码不正确");
+				return View(loginInputModels);
+			}
+			var mangouser = await _userManager.FindByNameAsync(loginInputModels.UserName);
+			mangouser.LastLoginDate = DateTime.Now;
+			await _userManager.UpdateAsync(mangouser);
 
-            if (!flag.Succeeded)
-            {
-                ViewData["Message"] = "Registration error occurred!";
-            }
-            else
-            {
-                ViewData["Message"] = "Registration Successful!";
-            }
-            return View("ResultPage");
-        }
+			return Redirect(loginInputModels.ReturnUrl);
+		}
 
-        [HttpPost]
-        public async Task<IActionResult> Logout(string userName, string returnUrl)
-        {          
-            if(userName == null)
-            {
-                throw new ArgumentNullException();
-            }
+		/// <summary>
+		/// 注册入口
+		/// </summary>
+		/// <returns></returns>
+		[HttpGet]
+		public IActionResult SignUp()
+		{
+			return View();
+		}
 
-            string requestUrl = returnUrl;
-            
-            if(userName != User.Identity.Name && !User.Identity.IsAuthenticated)
-            {
-                return Redirect(requestUrl);
-            }
+		/// <summary>
+		/// 注册表单提交入口
+		/// </summary>
+		/// <param name="signUpInputModel"></param>
+		/// <returns></returns>
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> SignUp([Bind("UserName,Email,Password,PasswordConfirm,IsAgree")]SignUpInputModel signUpInputModel)
+		{
+			if (signUpInputModel == null)
+			{
+				throw new ArgumentNullException(nameof(signUpInputModel));
+			}
 
-            await _signInManager.SignOutAsync();
+			if (!ModelState.IsValid)
+			{
+				return View(signUpInputModel);
+			}
 
-            return Redirect(requestUrl);
-        }
+			MangoUser mangoUser = new MangoUser
+			{
+				UserName = signUpInputModel.UserName,
+				Email = signUpInputModel.Email
+			};
 
-        [HttpGet]
-        public IActionResult Test()
-        {
-            string returnUrl = "/";
-            var redirectUrl = Url.Action(new Microsoft.AspNetCore.Mvc.Routing.UrlActionContext
-            {
-                Controller = "External",
-                Action = "Callback",
-                Values = new
-                {
-                    returnUrl
-                }
-            });
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties("gitee", redirectUrl);
-            return Challenge(properties, "gitee");
-        }
+			if (await _userManager.FindByNameAsync(mangoUser.UserName) != null)
+			{
+				ModelState.AddModelError("UserName", "该用户名已被注册");
+				return View(signUpInputModel);
+			}
 
-        private async Task LoginUserNameValidation(LoginViewModels loginView,string username)
-        {
-            if(username == null || username == "")
-            {
-                loginView.ValidationErrors = "请填写用户名";
-                return;
-            }
-            var mangouser = await _userManager.FindByNameAsync(username);
-            if(mangouser == null)
-            {
-                loginView.ValidationErrors = "该用户名不存在";
-                return;
-            }
-        }
+			var flag = await _userManager.CreateAsync(mangoUser, signUpInputModel.Password);
+			mangoUser = await _userManager.FindByNameAsync(mangoUser.UserName);
+			await _userManager.AddToRoleAsync(mangoUser, "USER");
 
-        private async Task LoginPasswordValidation(LoginViewModels loginView,string password)
-        {
-            if(password == null || password == "")
-            {
-                loginView.ValidationErrors = "请填写密码";
-                return;
-            }
-        }
+			if (!flag.Succeeded)
+			{
+				ViewData["Message"] = "Registration error occurred!";
+			}
+			else
+			{
+				ViewData["Message"] = "Registration Successful!";
+			}
+			return View("ResultPage");
+		}
 
-        private async Task<LoginViewModels> GetLoginViewModels(string returnUrl)
-        {
-            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+		/// <summary>
+		/// 登出入口
+		/// </summary>
+		/// <param name="logoutid"></param>
+		/// <returns></returns>
+		[HttpGet]
+		public async Task<IActionResult> Logout(string logoutid)
+		{
+			LoggedViewModel vm;
+			ViewData["IsAuthenticated"] = false;
+			ViewData["UserName"] = "";
+			if (string.IsNullOrEmpty(logoutid))
+			{
+				vm = new LoggedViewModel();
+			}
+			else
+			{
+				vm = await GetLoggedViewModelsAsync(logoutid);
+			}
 
-            if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false)
-            {
-                throw new System.Exception("invalid return URL");
-            }
+			if (User?.Identity.IsAuthenticated == true)
+			{
+				await _signInManager.SignOutAsync();
+			}
 
-            LoginViewModels loginViewModels = new LoginViewModels
-            {
-                ReturnUrl = returnUrl
-            };
+			return View(vm);
+		}
 
-            var a = await _schemeProvider.GetAllSchemesAsync();
-            if(context !=null && context.IdP != null)
-            {
-                bool onlyLocalLogin = context.IdP == IdentityServerConstants.LocalIdentityProvider;
-                loginViewModels.OnlyLocalLogin = onlyLocalLogin;
-            }
+		/// <summary>
+		/// 根据returnUrl获取登陆信息，OAuth2.0
+		/// </summary>
+		/// <param name="returnUrl"></param>
+		/// <returns></returns>
+		private async Task<LoginInputModels> GetLoginViewModelsAsync(string returnUrl)
+		{
+			var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
 
-            loginViewModels.LoginSchemes = new List<AuthenticationScheme>();
-            foreach(var s in await _schemeProvider.GetRequestHandlerSchemesAsync())
-            {
-                loginViewModels.LoginSchemes.Add(s);
-            }
+			if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false)
+			{
+				throw new System.Exception("invalid return URL");
+			}
 
-            return loginViewModels;
-        }
-    }
+			LoginInputModels loginInputModels = new LoginInputModels
+			{
+				ReturnUrl = returnUrl
+			};
+
+			var a = await _schemeProvider.GetAllSchemesAsync();
+			if (context != null || context.IdP != null)
+			{
+				//bool onlyLocalLogin = context.IdP == IdentityServerConstants.LocalIdentityProvider;
+				loginInputModels.OnlyLocalLogin = true;
+			}
+
+			return loginInputModels;
+		}
+
+		/// <summary>
+		/// 根据logoutId获取登陆信息，OAuth2.0
+		/// </summary>
+		/// <param name="logoutId"></param>
+		/// <returns></returns>
+		private async Task<LoggedViewModel> GetLoggedViewModelsAsync(string logoutId)
+		{
+			var logoutContext = await _interaction.GetLogoutContextAsync(logoutId);
+
+			LoggedViewModel loggedViewModel = new LoggedViewModel();
+
+			if (logoutContext == null)
+			{
+				return loggedViewModel;
+			}
+			else
+			{
+				if (string.IsNullOrEmpty(logoutContext.PostLogoutRedirectUri))
+				{
+					throw new InvalidOperationException($"该登陆id没有登出返回链接，Id：{logoutId}，ClientName：{logoutContext.ClientName}");
+				}
+				loggedViewModel.LogoutReturnUrl = logoutContext.PostLogoutRedirectUri;
+			}
+
+			return loggedViewModel;
+		}
+	}
 }
