@@ -12,7 +12,7 @@
 				<form action="/account/login" method="post">
 					@Html.AntiForgeryToken()
 					<input type="hidden" value="@Model.ReturnUrl" name="returnurl" />
-					<input type="hidden" value="@Model.OnlyLocalLogin" name="onlyLocalLogin"/>
+					<input type="hidden" value="@Model.OnlyLocalLogin.ToString()" name="onlyLocalLogin"/>
 					<div class="form-group">
 						<label for="exampleInputEmail1">UserName</label>
 						<input type="text" class="form-control" name="username" value="@Model.UserName">
