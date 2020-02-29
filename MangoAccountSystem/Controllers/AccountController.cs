@@ -219,7 +219,7 @@ namespace MangoAccountSystem.Controllers
 			};
 
 			var a = await _schemeProvider.GetAllSchemesAsync();
-			if (context != null || context.IdP != null)
+			if (context != null && context.IdP != null)
 			{
 				//bool onlyLocalLogin = context.IdP == IdentityServerConstants.LocalIdentityProvider;
 				loginInputModels.OnlyLocalLogin = true;
