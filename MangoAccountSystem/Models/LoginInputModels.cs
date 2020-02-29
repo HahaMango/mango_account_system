@@ -18,6 +18,8 @@ namespace MangoAccountSystem.Models
 		public string Password { get; set; }
 
 		public bool OnlyLocalLogin { get; set; }
+
+		[Required]
 		public string ReturnUrl { get; set; }
 	}
 }
