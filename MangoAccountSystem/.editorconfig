@@ -62,7 +62,7 @@ dotnet_style_prefer_conditional_expression_over_return = true:silent
 ############################### 
 
 # Style Definitions 
-dotnet_naming_style.pascal_case_style.capitalization             = pascal_case
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
 
 dotnet_naming_style.filed_camel_case.capitalization = camel_case
 dotnet_naming_style.filed_camel_case.required_prefix = _

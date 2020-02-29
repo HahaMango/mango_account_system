@@ -1,12 +1,10 @@
-﻿using IdentityServer4;
+﻿using System;
+using System.Threading.Tasks;
 using IdentityServer4.Services;
 using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MangoAccountSystem.Controllers
 {
@@ -221,10 +219,10 @@ namespace MangoAccountSystem.Controllers
 			};
 
 			var a = await _schemeProvider.GetAllSchemesAsync();
-			if (context != null && context.IdP != null)
+			if (context != null || context.IdP != null)
 			{
-				bool onlyLocalLogin = context.IdP == IdentityServerConstants.LocalIdentityProvider;
-				loginInputModels.OnlyLocalLogin = onlyLocalLogin;
+				//bool onlyLocalLogin = context.IdP == IdentityServerConstants.LocalIdentityProvider;
+				loginInputModels.OnlyLocalLogin = true;
 			}
 
 			return loginInputModels;
