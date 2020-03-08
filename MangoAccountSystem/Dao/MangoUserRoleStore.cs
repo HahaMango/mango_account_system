@@ -15,12 +15,18 @@ namespace MangoAccountSystem.Dao
 	/// </summary>
 	public class MangoUserRoleStore : IdentityRoleStore
 	{
+		private bool _disposedValue = false;
 
 		private readonly UserDbContext _userDbContext = null;
 
 		public MangoUserRoleStore(UserDbContext userDbContext)
 		{
 			_userDbContext = userDbContext;
+		}
+
+		~MangoUserRoleStore()
+		{
+			Dispose(false);
 		}
 
 		public override async Task<IdentityResult> CreateAsync(MangoUserRole role, CancellationToken cancellationToken)
@@ -62,9 +68,19 @@ namespace MangoAccountSystem.Dao
 			return IdentityResult.Success;
 		}
 
-		public override void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			_userDbContext.Dispose();
+			if (!_disposedValue)
+			{
+				if (disposing)
+				{
+
+				}
+
+				_userDbContext.Dispose();
+
+				_disposedValue = true;
+			}
 		}
 
 		public override async Task<MangoUserRole> FindByIdAsync(int roleId, CancellationToken cancellationToken)

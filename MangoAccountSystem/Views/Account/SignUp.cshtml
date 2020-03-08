@@ -5,7 +5,7 @@
 <div style="max-width:690px;margin:60px auto 0px auto;">
     <h2>Sign Up</h2>
     <form action="/account/signup" method="post">
-		@Html.AntiForgeryToken();
+		@Html.AntiForgeryToken()
         <div class="form-group">
             <label for="exampleInputEmail1">UserName</label>
             <input type="text" class="form-control" name="userName" value="@Model?.UserName">

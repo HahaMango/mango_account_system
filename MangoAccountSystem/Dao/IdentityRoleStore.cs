@@ -11,29 +11,36 @@ namespace MangoAccountSystem.Dao
 	/// <summary>
 	/// 自定义Identity的角色管理器储存逻辑，自定义表结构
 	/// </summary>
-    public abstract class IdentityRoleStore : IRoleStore<MangoUserRole>
-    {
+	public abstract class IdentityRoleStore : IRoleStore<MangoUserRole>
+	{
 
-        #region 接口适配方法
+		#region 接口适配方法
 
-        public Task<MangoUserRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
-        {
-            return FindByIdAsync(String2Id(roleId),cancellationToken);
-        }
+		public Task<MangoUserRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
+		{
+			return FindByIdAsync(String2Id(roleId), cancellationToken);
+		}
 
-        public abstract Task<MangoUserRole> FindByIdAsync(int roleId, CancellationToken cancellationToken);
+		public abstract Task<MangoUserRole> FindByIdAsync(int roleId, CancellationToken cancellationToken);
 
-        public abstract Task<string> GetRoleIdAsync(MangoUserRole role, CancellationToken cancellationToken);
+		public abstract Task<string> GetRoleIdAsync(MangoUserRole role, CancellationToken cancellationToken);
 
-        #endregion
+		#endregion
 
-        #region 抽象方法
+		#region 抽象方法
 
-        public abstract Task<IdentityResult> CreateAsync(MangoUserRole role, CancellationToken cancellationToken);
+		public abstract Task<IdentityResult> CreateAsync(MangoUserRole role, CancellationToken cancellationToken);
 
-        public abstract Task<IdentityResult> DeleteAsync(MangoUserRole role, CancellationToken cancellationToken);
+		public abstract Task<IdentityResult> DeleteAsync(MangoUserRole role, CancellationToken cancellationToken);
 
-        public abstract void Dispose();
+		public void Dispose()
+		{
+			Dispose(true);
+
+			GC.SuppressFinalize(this);
+		}
+
+		protected abstract void Dispose(bool disposing);
 
         public abstract Task<MangoUserRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken);
 

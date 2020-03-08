@@ -1,5 +1,6 @@
 ﻿using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
@@ -12,10 +13,9 @@ namespace MangoAccountSystem.Dao
 	/// </summary>
     public abstract class IdentityUserStore : IUserRoleStore<MangoUser>, IUserPasswordStore<MangoUser>, IUserClaimStore<MangoUser>,IUserEmailStore<MangoUser>,IUserLoginStore<MangoUser>
     {
+		#region 接口适配
 
-        #region 接口适配
-
-        public Task<MangoUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
+		public Task<MangoUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             return FindByIdAsync(String2Id(userId), cancellationToken);
         }
@@ -50,7 +50,14 @@ namespace MangoAccountSystem.Dao
 
         public abstract Task<IdentityResult> DeleteAsync(MangoUser user, CancellationToken cancellationToken);
 
-        public abstract void Dispose();
+        public void Dispose()
+		{
+			Dispose(true);
+
+			GC.SuppressFinalize(this);
+		}
+
+		protected abstract void Dispose(bool disposing);
 
         public abstract Task<MangoUser> FindByNameAsync(string loginName, CancellationToken cancellationToken);
 
