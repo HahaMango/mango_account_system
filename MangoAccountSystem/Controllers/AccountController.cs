@@ -276,12 +276,5 @@ namespace MangoAccountSystem.Controllers
 
 			return loggedViewModel;
 		}
-
-		private async Task CleanSignUp(MangoUser mangoUser,string role)
-		{
-			await _userManager.DeleteAsync(mangoUser);
-			await _userManager.RemoveFromRoleAsync(mangoUser, role);
-
-		}
 	}
 }
