@@ -9,7 +9,7 @@ namespace MangoAccountSystem.Service.Imp
     {
         private readonly IEmailComponent _emailComponent;
 
-        public EmailService(IEmailComponent emailComponent)
+		public EmailService(IEmailComponent emailComponent)
         {
             _emailComponent = emailComponent;
         }

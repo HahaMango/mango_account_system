@@ -17,6 +17,8 @@ namespace MangoAccountSystem.Dao
 	/// </summary>
 	public class MangoUserStore : IdentityUserStore
 	{
+		private bool _disposedValue = false;
+
 		private readonly UserDbContext _userDbContext = null;
 
 		public MangoUserStore(UserDbContext userDbContext)
@@ -24,8 +26,16 @@ namespace MangoAccountSystem.Dao
 			_userDbContext = userDbContext;
 		}
 
+		~MangoUserStore()
+		{
+			Dispose(false);
+		}
+
 		public override async Task AddClaimsAsync(MangoUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -36,34 +46,24 @@ namespace MangoAccountSystem.Dao
 			}
 			MangoUser mangoUser = await FindByNameAsync(user.UserName, cancellationToken);
 			int userid = mangoUser.Id;
-			using (var trans = _userDbContext.Database.BeginTransaction())
-			{
-				try
-				{
-					foreach (Claim claim in claims)
-					{
-						UserClaimEntity claimEntity = new UserClaimEntity
-						{
-							UserId = userid,
-							ClaimType = claim.Type,
-							ClaimValue = claim.Value
-						};
-						await _userDbContext.AddAsync(claimEntity);
-					}
-					await _userDbContext.SaveChangesAsync();
 
-					trans.Commit();
-				}
-				catch
+			foreach (Claim claim in claims)
+			{
+				UserClaimEntity claimEntity = new UserClaimEntity
 				{
-					trans.Rollback();
-					throw;
-				}
+					UserId = userid,
+					ClaimType = claim.Type,
+					ClaimValue = claim.Value
+				};
+				await _userDbContext.AddAsync(claimEntity);
 			}
 		}
 
 		public override async Task AddLoginAsync(MangoUser user, UserLoginInfo login, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -80,13 +80,15 @@ namespace MangoAccountSystem.Dao
 				externalLogin.UserId = mangouser.Id;
 
 				await _userDbContext.ExternalLogins.AddAsync(externalLogin);
-				await _userDbContext.SaveChangesAsync();
 			}
 		}
 
 		public override async Task AddToRoleAsync(MangoUser user, string roleName, CancellationToken cancellationToken)
 		{
-			if(user == null)
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
+			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
@@ -103,11 +105,13 @@ namespace MangoAccountSystem.Dao
 				RoleId = role.Id
 			};
 			await _userDbContext.User2Roles.AddAsync(u2r);
-			await _userDbContext.SaveChangesAsync();
 		}
 
 		public override async Task<IdentityResult> CreateAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -116,8 +120,9 @@ namespace MangoAccountSystem.Dao
 			{
 				await _userDbContext.MangoUsers.AddAsync(MEConversion.UserM2E(user));
 				await _userDbContext.SaveChangesAsync();
+				_userDbContext.ChangeTracker.Entries<UserEntity>().First().State = EntityState.Detached;
 			}
-			catch (DbUpdateException e)
+			catch (DbUpdateConcurrencyException e)
 			{
 				return IdentityResult.Failed(new IdentityError { Description = e.Message });
 			}
@@ -126,6 +131,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<IdentityResult> DeleteAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -147,13 +155,26 @@ namespace MangoAccountSystem.Dao
 			return IdentityResult.Success;
 		}
 
-		public override void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			_userDbContext.Dispose();
+			if (!_disposedValue)
+			{
+				if (disposing)
+				{
+
+				}
+
+				_userDbContext.Dispose();
+
+				_disposedValue = true;
+			}
 		}
 
 		public override async Task<MangoUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (normalizedEmail == null)
 			{
 				throw new ArgumentNullException(nameof(normalizedEmail));
@@ -169,7 +190,10 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<MangoUser> FindByIdAsync(int userId, CancellationToken cancellationToken)
 		{
-			UserEntity userEntity = await _userDbContext.MangoUsers.Where(u => u.Id == userId).SingleOrDefaultAsync();
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
+			UserEntity userEntity = await _userDbContext.MangoUsers.FirstOrDefaultAsync(u => u.Id == userId);
 			if (userEntity == null)
 			{
 				return null;
@@ -179,6 +203,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<MangoUser> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (loginProvider == null)
 			{
 				throw new ArgumentNullException(nameof(loginProvider));
@@ -209,7 +236,10 @@ namespace MangoAccountSystem.Dao
 		/// <returns></returns>
 		public override async Task<MangoUser> FindByNameAsync(string username, CancellationToken cancellationToken)
 		{
-			UserEntity userEntity = await _userDbContext.MangoUsers.Where(u => u.LoginName == username).SingleOrDefaultAsync();
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
+			UserEntity userEntity = await _userDbContext.MangoUsers.FirstOrDefaultAsync(u => u.LoginName == username);
 
 			if (userEntity == null)
 			{
@@ -220,6 +250,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<IList<Claim>> GetClaimsAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -238,6 +271,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<string> GetEmailAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -247,6 +283,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<bool> GetEmailConfirmedAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -261,6 +300,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<string> GetLoginNameAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -275,6 +317,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<IList<UserLoginInfo>> GetLoginsAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -298,6 +343,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<string> GetNormalizedEmailAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -312,6 +360,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<string> GetPasswordHashAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -326,11 +377,14 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<IList<string>> GetRolesAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
-			UserEntity userEntity = await FindByNameEntityAsync(user.LoginName);
+			UserEntity userEntity = await FindByNameEntityAsync(user.UserName);
 
 			IList<string> roles = new List<string>();
 			var roleentities = await _userDbContext.User2Roles.Where(u2r => u2r.UserId == userEntity.Id).Select(u2r => u2r.RoleId).ToListAsync();
@@ -347,20 +401,22 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<string> GetUserIdAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
-			UserEntity userEntity = await FindByNameEntityAsync(user.UserName);
-			if (userEntity == null)
-			{
-				return null;
-			}
-			return userEntity.Id.ToString();
+
+			return await Task.FromResult(user.Id.ToString());
 		}
 
 		public override async Task<string> GetUserNameAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -375,6 +431,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<IList<MangoUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (roleName == null)
 			{
 				throw new ArgumentNullException(nameof(roleName));
@@ -401,6 +460,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<bool> HasPasswordAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -412,6 +474,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<bool> IsInRoleAsync(MangoUser user, string roleName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null || roleName == null)
 			{
 				return false;
@@ -430,6 +495,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task RemoveClaimsAsync(MangoUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -459,17 +527,19 @@ namespace MangoAccountSystem.Dao
 			}
 
 			_userDbContext.MangoUserClaims.RemoveRange(removeList);
-			await _userDbContext.SaveChangesAsync();
 		}
 
 		public override async Task RemoveFromRoleAsync(MangoUser user, string roleName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
 
-			if(roleName == null)
+			if (roleName == null)
 			{
 				throw new ArgumentNullException(nameof(roleName));
 			}
@@ -481,11 +551,13 @@ namespace MangoAccountSystem.Dao
 			}
 			IList<User2Role> user2Roles = await _userDbContext.User2Roles.Where(u2r => u2r.UserId == userentity.Id).ToListAsync();
 			_userDbContext.User2Roles.RemoveRange(user2Roles);
-			await _userDbContext.SaveChangesAsync();
 		}
 
 		public override async Task RemoveLoginAsync(MangoUser user, string loginProvider, string providerKey, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -506,11 +578,13 @@ namespace MangoAccountSystem.Dao
 			}
 			var logins = await _userDbContext.ExternalLogins.Where(ex => ex.UserId == userEntity.Id && ex.LoginProvider == loginProvider && ex.ProviderKey == providerKey).ToListAsync();
 			_userDbContext.RemoveRange(logins);
-			await _userDbContext.SaveChangesAsync();
 		}
 
 		public override async Task ReplaceClaimAsync(MangoUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -537,11 +611,13 @@ namespace MangoAccountSystem.Dao
 			}
 			oldclaim.ClaimType = newClaim.Type;
 			oldclaim.ClaimValue = newClaim.Value;
-			await _userDbContext.SaveChangesAsync();
 		}
 
 		public override async Task SetEmailAsync(MangoUser user, string email, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -558,6 +634,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task SetEmailConfirmedAsync(MangoUser user, bool confirmed, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -570,11 +649,14 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task SetLoginNameAsync(MangoUser user, string loginName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
-			if(loginName == null)
+			if (loginName == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
@@ -587,6 +669,9 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task SetNormalizedEmailAsync(MangoUser user, string normalizedEmail, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
@@ -603,11 +688,14 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task SetPasswordHashAsync(MangoUser user, string passwordHash, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
-			if(passwordHash == null)
+			if (passwordHash == null)
 			{
 				throw new ArgumentNullException(nameof(passwordHash));
 			}
@@ -620,11 +708,14 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task SetUserNameAsync(MangoUser user, string userName, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
-			if(userName == null)
+			if (userName == null)
 			{
 				throw new ArgumentNullException(nameof(userName));
 			}
@@ -637,19 +728,18 @@ namespace MangoAccountSystem.Dao
 
 		public override async Task<IdentityResult> UpdateAsync(MangoUser user, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+			ThrowIfDisposed();
+
 			if (user == null)
 			{
 				throw new ArgumentNullException(nameof(user));
 			}
 
+			_userDbContext.Update(MEConversion.UserM2E(user));
+
 			try
 			{
-				UserEntity userEntity = await FindByNameEntityAsync(user.UserName);
-				userEntity.LoginName = user.LoginName;
-				userEntity.UserName = user.UserName;
-				userEntity.Email = user.Email;
-				userEntity.CreateDate = user.CreateDate;
-				userEntity.LastLoginDate = user.LastLoginDate;
 				await _userDbContext.SaveChangesAsync();
 			}
 			catch (DbUpdateException e)
@@ -663,6 +753,14 @@ namespace MangoAccountSystem.Dao
 		{
 			UserEntity userEntity = await _userDbContext.MangoUsers.FirstOrDefaultAsync(u => u.UserName == username);
 			return userEntity;
+		}
+
+		private void ThrowIfDisposed()
+		{
+			if (_disposedValue)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 		}
 	}
 }

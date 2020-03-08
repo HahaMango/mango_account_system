@@ -46,8 +46,9 @@ namespace MangoAccountSystem
 			services.AddDbContext<UserDbContext>(op =>
 			{
 				op.UseMySql(Configuration.GetConnectionString("UserDatabase"));
+				op.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 			});
-
+			
 			//配置identity
 			services.AddIdentity<MangoUser, MangoUserRole>()
 				.AddDefaultTokenProviders();
@@ -64,10 +65,11 @@ namespace MangoAccountSystem
 
 			services.AddScoped<IUserStore<MangoUser>, MangoUserStore>();
 			services.AddScoped<IRoleStore<MangoUserRole>, MangoUserRoleStore>();
+			services.AddScoped<Transaction>();
 
 			services.AddSingleton<IEmailComponent, EmailComponent>();
 			services.AddSingleton<IEmailService, EmailService>();
-
+			
 			//配置identityserver4
 			services.AddIdentityServer()
 				.AddAspNetIdentity<MangoUser>()
@@ -109,6 +111,7 @@ namespace MangoAccountSystem
 			});
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+	
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

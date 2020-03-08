@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using IdentityServer4;
 using IdentityServer4.Services;
+using MangoAccountSystem.Dao;
 using MangoAccountSystem.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -39,6 +41,11 @@ namespace MangoAccountSystem.Controllers
 		private readonly IAuthenticationSchemeProvider _schemeProvider;
 
 		/// <summary>
+		/// 当前请求数据库上下文的事务对象
+		/// </summary>
+		private readonly Transaction _transaction;
+
+		/// <summary>
 		/// 构造函数
 		/// </summary>
 		/// <param name="signInManager"></param>
@@ -50,13 +57,15 @@ namespace MangoAccountSystem.Controllers
 			SignInManager<MangoUser> signInManager,
 			UserManager<MangoUser> userManager, RoleManager<MangoUserRole> roleManager,
 			IAuthenticationSchemeProvider authenticationSchemeProvider,
-			IIdentityServerInteractionService identityServerInteractionService)
+			IIdentityServerInteractionService identityServerInteractionService,
+			Transaction transaction)
 		{
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_roleManager = roleManager;
 			_interaction = identityServerInteractionService;
 			_schemeProvider = authenticationSchemeProvider;
+			_transaction = transaction;
 		}
 
 		/// <summary>
@@ -156,18 +165,32 @@ namespace MangoAccountSystem.Controllers
 				return View(signUpInputModel);
 			}
 
-			var flag = await _userManager.CreateAsync(mangoUser, signUpInputModel.Password);
-			mangoUser = await _userManager.FindByNameAsync(mangoUser.UserName);
-			await _userManager.AddToRoleAsync(mangoUser, "USER");
+			using(var trans = await _transaction.BeginTransactionAsync())
+			{
+				try
+				{
+					var flag = await _userManager.CreateAsync(mangoUser, signUpInputModel.Password);
+					mangoUser = await _userManager.FindByNameAsync(mangoUser.UserName);
+					var roleFlag = await _userManager.AddToRoleAsync(mangoUser, "USER");
 
-			if (!flag.Succeeded)
-			{
-				ViewData["Message"] = "Registration error occurred!";
+					if (!flag.Succeeded || !roleFlag.Succeeded)
+					{
+						ViewData["Message"] = "Registration error occurred!";
+						trans.Rollback();
+					}
+					else
+					{
+						ViewData["Message"] = "Registration Successful!";
+						trans.Commit();
+					}
+				}
+				catch
+				{
+					trans.Rollback();
+					throw;
+				}
 			}
-			else
-			{
-				ViewData["Message"] = "Registration Successful!";
-			}
+
 			return View("ResultPage");
 		}
 
@@ -218,10 +241,9 @@ namespace MangoAccountSystem.Controllers
 				ReturnUrl = returnUrl
 			};
 
-			var a = await _schemeProvider.GetAllSchemesAsync();
 			if (context != null && context.IdP != null)
 			{
-				//bool onlyLocalLogin = context.IdP == IdentityServerConstants.LocalIdentityProvider;
+				bool onlyLocalLogin = context.IdP == IdentityServerConstants.LocalIdentityProvider;
 				loginInputModels.OnlyLocalLogin = true;
 			}
 
