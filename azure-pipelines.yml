@@ -15,7 +15,7 @@ stages:
 - stage: Build
   displayName: Build
   jobs:  
-  - job: Build Docker Image
+  - job: Build_Docker_Image
     displayName: Build Docker Image
     pool:
       vmImage: 'ubuntu-latest'
@@ -52,7 +52,7 @@ stages:
         containerRegistry: 'aliyunDockerHub'
         repository: 'chiva_mg_namespace/chiva_mg_repository'
 
-  - job: Build dotnet2.2
+  - job: Build_dotnet2.2
     pool:
       vmImage: 'ubuntu-latest'
 
