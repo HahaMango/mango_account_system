@@ -4,9 +4,9 @@ SSO System Base on IdentityServer and AspDotNetCore Identity
 
 > English version coming soon. I'm not good at English,I'm working hard at it,Thank.
 
-| Build | Docker |
-|:--:|:--:|
-| [![Build Status](https://dev.azure.com/q932104843/mango_user_system/_apis/build/status/HahaMango.mango_account_system?branchName=master)](https://dev.azure.com/q932104843/mango_user_system/_build/latest?definitionId=4&branchName=master) | [![Build Status](https://dev.azure.com/q932104843/mango_user_system/_apis/build/status/HahaMango.mango_account_system%20(1)?branchName=master)](https://dev.azure.com/q932104843/mango_user_system/_build/latest?definitionId=5&branchName=master) |
+| Build |
+|:--:|
+| [![Build Status](https://dev.azure.com/q932104843/mango_user_system/_apis/build/status/HahaMango.mango_account_system?branchName=master)](https://dev.azure.com/q932104843/mango_user_system/_build/latest?definitionId=4&branchName=master) |
 
 ## 简介
 
