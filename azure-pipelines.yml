@@ -52,7 +52,7 @@ stages:
         containerRegistry: 'aliyunDockerHub'
         repository: 'chiva_mg_namespace/chiva_mg_repository'
 
-  - job: Build_dotnet2.2
+  - job: Build_dotnet2_2
     pool:
       vmImage: 'ubuntu-latest'
 
