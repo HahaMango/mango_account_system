@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -15,19 +16,25 @@ namespace MangoAccountSystem.Controllers
     public class CenterController : UserHelperController
     {
 		/// <summary>
+		/// 日志服务
+		/// </summary>
+		private readonly ILogger<CenterController> _logger;
+
+		/// <summary>
 		/// Identity用户管理器
 		/// </summary>
-        private readonly UserManager<MangoUser> _userManager;
+		private readonly UserManager<MangoUser> _userManager;
 
 		/// <summary>
 		/// 授权方案服务
 		/// </summary>
 		private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
 
-        public CenterController(UserManager<MangoUser> userManager, IAuthenticationSchemeProvider authenticationSchemeProvider)
+        public CenterController(UserManager<MangoUser> userManager, IAuthenticationSchemeProvider authenticationSchemeProvider,ILogger<CenterController> logger)
         {
             _userManager = userManager;
             _authenticationSchemeProvider = authenticationSchemeProvider;
+			_logger = logger;
         }
 
 		/// <summary>
@@ -36,6 +43,7 @@ namespace MangoAccountSystem.Controllers
 		/// <returns></returns>
         public IActionResult Home()
         {
+			_logger.LogInformation("Welcome To Mango");
             return View();
         }
 
