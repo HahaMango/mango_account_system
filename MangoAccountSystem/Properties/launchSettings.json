@@ -1,7 +1,7 @@
-﻿{
+{
   "iisSettings": {
-    "windowsAuthentication": false, 
-    "anonymousAuthentication": true, 
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
     "iisExpress": {
       "applicationUrl": "http://localhost:57272",
       "sslPort": 44394
@@ -17,27 +17,29 @@
     },
     "UserCenter": {
       "commandName": "Project",
-      "launchBrowser": false,
-      "applicationUrl": "https://localhost:6001;http://localhost:6000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://localhost:6001;http://localhost:6000"
     },
     "UserCenterNginx": {
       "commandName": "Project",
-      "launchBrowser": false,
-      "applicationUrl": "https://192.168.99.1:6001;http://192.168.99.1:6000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://192.168.99.1:6001;http://192.168.99.1:6000"
     },
     "UserCenterNginxPro": {
       "commandName": "Project",
-      "launchBrowser": false,
-      "applicationUrl": "https://192.168.99.1:6001;http://192.168.99.1:6000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production"
-      }
+      },
+      "applicationUrl": "https://192.168.99.1:6001;http://192.168.99.1:6000"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}"
     }
   }
 }
