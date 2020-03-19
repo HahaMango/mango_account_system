@@ -14,7 +14,7 @@ variables:
 
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+  displayName: 'dotnet build $(Build.SourcesDirectory)/MangoAccountSystem/MangoAccountSystem.csproj $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   inputs:
