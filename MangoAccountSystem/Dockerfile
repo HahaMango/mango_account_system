@@ -5,16 +5,17 @@ EXPOSE 6001
 
 FROM microsoft/dotnet:2.2-sdk AS build
 WORKDIR /src
-COPY ["MangoAccountSystem/MangoAccountSystem.csproj", "MangoAccountSystem/"]
-RUN dotnet restore "MangoAccountSystem/MangoAccountSystem.csproj"
 COPY . .
-WORKDIR "/src/MangoAccountSystem"
-RUN dotnet build "MangoAccountSystem.csproj" -c Release -o /app
+RUN dotnet build -c Release
 
 FROM build AS publish
-RUN dotnet publish "MangoAccountSystem.csproj" -c Release -o /app
+WORKDIR /src
+RUN dotnet publish "MangoAccountSystem.csproj" -c Release -o /app --no-restore
 
 FROM base AS final
 WORKDIR /app
+COPY ./key.json /app
+COPY ./localhost.pfx /app
+COPY ./mangoidentity.pfx /app
 COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "MangoAccountSystem.dll"]
