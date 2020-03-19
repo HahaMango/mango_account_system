@@ -10,6 +10,9 @@ RUN dotnet build -c Release
 
 FROM build AS publish
 WORKDIR /src
+COPY ./key.json /app
+COPY ./localhost.pfx /app
+COPY ./mangoidentity.pfx /app
 RUN dotnet publish "MangoAccountSystem.csproj" -c Release -o /app --no-restore
 
 FROM base AS final
