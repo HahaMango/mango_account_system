@@ -5,7 +5,7 @@ EXPOSE 6001
 
 FROM microsoft/dotnet:2.2-sdk AS build
 WORKDIR /src
-COPY ["MangoAccountSystem/MangoAccountSystem.csproj", "MangoAccountSystem/"]
+COPY ["MangoAccountSystem.csproj", "MangoAccountSystem/"]
 RUN dotnet restore "MangoAccountSystem/MangoAccountSystem.csproj"
 COPY . .
 WORKDIR "/src/MangoAccountSystem"
