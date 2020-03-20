@@ -46,6 +46,13 @@ stages:
         tags: |
           $(tag)
 
+    - task: Docker@2
+      condition: and(succeeded(), eq(variables['Build.Reason'], 'IndividualCI'))
+      displayName: Docker Push
+      inputs:
+        containerRegistry: 'aliyunDockerHub'
+        repository: 'chiva_mg_namespace/chiva_mg_repository'
+
   - job: Build_dotnet2_2
     pool:
       vmImage: 'ubuntu-latest'
