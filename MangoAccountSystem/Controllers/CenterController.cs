@@ -41,6 +41,7 @@ namespace MangoAccountSystem.Controllers
 		/// 主页入口
 		/// </summary>
 		/// <returns></returns>
+		[HttpGet]
         public IActionResult Home()
         {
 			_logger.LogInformation("Welcome To Mango");
@@ -65,6 +66,12 @@ namespace MangoAccountSystem.Controllers
 
             return View(mangoUser);
         }
+
+		[HttpGet]
+		public IActionResult Service()
+		{
+			return View();
+		}
 
 		/// <summary>
 		/// 错误页面
