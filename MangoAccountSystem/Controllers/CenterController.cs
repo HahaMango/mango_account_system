@@ -73,6 +73,12 @@ namespace MangoAccountSystem.Controllers
 			return View();
 		}
 
+		[HttpGet]
+		public IActionResult Model()
+		{
+			return View();
+		}
+
 		/// <summary>
 		/// 错误页面
 		/// </summary>
